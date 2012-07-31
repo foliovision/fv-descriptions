@@ -4,7 +4,7 @@ Plugin Name: Foliopress Descriptions
 Plugin URI: http://foliovision.com/seo-tools/wordpress/plugins/fv-descriptions/
 Description: Mass edit descriptions for every post, page or category page. Supports post excerpt, Thesis and All In One SEO meta description fields.
 Author: Foliovision
-Version: 1.3.1
+Version: 1.3.2
 Author URI: http://foliovision.com
 
 Copyright (c) 2009 Foliovision (http://foliovision.com)
@@ -40,11 +40,43 @@ function fv_description_options_page()
 		/// Change of user level that can manage fvDescriptions
 		//add_management_page('FV Descriptions', 'FV Descriptions', 10, 'manage_fv_descriptions', 'manage_fv_descriptions');
 		/// use of numbers as user levels is deprecated, use some capability instead, for full list of capabilities look on Wordpress page
-		add_management_page('FV Descriptions', 'FV Descriptions', 'edit_pages', 'manage_fv_descriptions', 'manage_fv_descriptions');
+		add_management_page('FV Descriptions', 'FV Descriptions', 'edit_pages', 'fv_descriptions', 'manage_fv_descriptions');
 	}
 }
 
+function fv_get_field_type() 
+{
+  $type = $_REQUEST["description_field_type"];
+  
+  if(!isset($type)) {
+    $type = 'description';
+  }
+  
+  return $type;
+}
+function fv_get_tag_type() 
+{
+  $type = $_REQUEST["description_tags_type"];
+  
+  if(!isset($type)) {
+    $type = 'pages';
+  }
+  
+  return $type;
+}
+
 add_action('admin_menu', 'fv_description_options_page');
+
+function fv_detect_plugin()
+{
+$plugins = get_option('active_plugins');$found = false;
+foreach ( $plugins AS $plugin ) {
+	if( stripos($plugin,'all-in-one-seo-pack') !== FALSE ){
+    $fieldname = '_aioseop_description';
+  }
+  return $fieldname;
+}
+}
 
 function manage_fv_descriptions()
 {
@@ -55,8 +87,14 @@ function manage_fv_descriptions()
 	$search_query_string = '';
 	
 	///    Addition 2009/07/03
+	
+
+	
+
 	if(isset($_POST['selectfield'])) {
         update_option('fv_descriptions_field',$_POST['selectfield']);
+    } else {
+       update_option('fv_descriptions_field',fv_detect_plugin()); 
     }
     $fieldname = get_option('fv_descriptions_field');
     if($fieldname == '')
@@ -66,7 +104,8 @@ function manage_fv_descriptions()
     /// End of addition
 	
 	//echo 'Reading & saving: '.$fieldname.'<br />';
-
+if(isset($_POST['action'])) {	
+if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) {
 	if (isset($_POST['action']) and ($_POST['action'] == 'pages'))
 	{
 		foreach ($_POST as $name => $value)
@@ -75,17 +114,20 @@ function manage_fv_descriptions()
 			{
 				$value = stripslashes($value);
 				
-				if(stripos($fieldname, 'excerpt')===FALSE) {
-                    delete_post_meta($matches[1], $fieldname);
-                    add_post_meta($matches[1], $fieldname, $value);
-				} else {
-				    $meta_value = wp_update_post(array('ID'=>$matches[1],'post_excerpt'=>$value));
-                }
+				if(fv_get_field_type() == 'description') {
+  				if(stripos($fieldname, 'excerpt')===FALSE) {        
+              update_post_meta($matches[1], $fieldname, $value);
+  				} else {
+  				    $meta_value = wp_update_post(array('ID'=>$matches[1],'post_excerpt'=>$value));
+          }
+        } else {
+              $meta_value = wp_update_post(array('ID'=>$matches[1],'post_title'=>$value));
+        }
 
 			}
 		}
 
-		echo '<div class="updated"><p>The custom page description have been updated.</p></div>';
+		echo '<div class="updated"><p>The custom page description have been  updated.</p></div>';
 	}
 	elseif (isset($_POST['action']) and ($_POST['action'] == 'posts'))
 	{
@@ -94,7 +136,7 @@ function manage_fv_descriptions()
 			if(preg_match('/^tagdescription_(\d+)$/',$name,$matches))
 			{
 				$value = stripslashes($value);
-				
+				if(fv_get_field_type() == 'description') {
 				if(stripos($fieldname, 'excerpt')===FALSE) {
                     //echo 'ID: '.$matches[1].' Desc.: '.$value.'<br />';
                     delete_post_meta($matches[1], $fieldname);
@@ -102,6 +144,9 @@ function manage_fv_descriptions()
 				} else {
 				    $meta_value = wp_update_post(array('ID'=>$matches[1],'post_excerpt'=>$value));
                 }
+        } else {
+          $meta_value = wp_update_post(array('ID'=>$matches[1],'post_title'=>$value));
+        }
 			}
 		}
 
@@ -121,7 +166,11 @@ function manage_fv_descriptions()
 				//$category = add_magic_quotes($category);
 				  //var_dump($category);
 				  //echo '<hr />';
-				$category['description'] = $description;
+				  if(fv_get_field_type() == 'description') {
+				  $category['description'] = $description;
+				} else {
+          $category['name'] = $description;
+        }
 				//var_dump( $category );
 				  //var_dump($category);
 				wp_insert_category($category);
@@ -141,7 +190,10 @@ function manage_fv_descriptions()
 	{
 		$search_value = $_POST['search_value'];
 	}
-
+} else {
+    echo '<div class="error"><p>Nonce verification failed.</p></div>';
+}
+}
 	if (! isset($_POST['search_value']))
 	{
 		$search_value = $_GET['search_value'];
@@ -175,10 +227,18 @@ function manage_fv_descriptions()
         <h2>FV Descriptions</h2>
         	        
 	<ul class="subsubsub">
+	
 	<?php $url = preg_replace('/&description_tags_type=.*?$/','',$_SERVER['REQUEST_URI']) ?>
-        <li><a href="<?php echo $url.'&description_tags_type=pages'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a></li>
-        <li><a href="<?php echo $url.'&description_tags_type=posts'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a></li>
+        <li><a href="<?php echo $url.'&description_tags_type=pages'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages </a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish; ?>) |</li>
+        <li><a href="<?php echo $url.'&description_tags_type=posts'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $posts = wp_count_posts(); echo ($posts->trash+$posts->publish+$posts->auto-draft); ?>) |</li>
         <li><a href="<?php echo $url.'&description_tags_type=categories'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'categories'); ?>>Categories</a></li>
+    </ul>
+    
+    <br /><br />
+    <ul class="subsubsub">
+    <?php $url = preg_replace('/&description_field_type=\w+/','',$_SERVER['REQUEST_URI']) ?>
+      <li><a href="<?php echo $url.'&description_field_type=description'; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'description'); if ($_REQUEST['description_field_type']=='') echo 'class=current'; ?>>Description</a> | </li>
+      <li><a href="<?php echo $url.'&description_field_type=title'; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'title'); ?>>Title</a></li>
     </ul>
     
     <div style="text-align: right;">
@@ -194,8 +254,7 @@ function manage_fv_descriptions()
                 Select field to display: <select name="selectfield">
                     <option value="excerpt"<?php if($fieldname=="excerpt") echo ' selected'; ?>>post_excerpt</option>
                     <option value="thesis_description"<?php if($fieldname=="thesis_description") echo ' selected'; ?>>thesis_description</option>
-                    <option value="description"<?php if($fieldname=="description") echo ' selected'; ?>>All In One SEO</option>
-                    <option value="_aioseop_description"<?php if($fieldname=="_aioseop_description") echo ' selected'; ?>>All In One SEO 1.6.2</option>
+                    <option value="_aioseop_description"<?php if($fieldname=="_aioseop_description") echo ' selected'; ?>>All In One SEO</option>
                 </select>
                 <input type="submit" value="Apply" name="doaction" id="doaction" class="button-secondary action" />
             </form>
@@ -236,8 +295,8 @@ function manage_fv_descriptions()
                         <table class="widefat">
                         <thead>
                         <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Title</th>
+                        <th scope="col" width="70">ID</th>
+                        <th scope="col" width="250">Title</th>
                         <th scope="col">Description</th>
                         </tr>
                         </thead>
@@ -252,7 +311,8 @@ function manage_fv_descriptions()
                         {
                         	manage_fv_descriptions_recursive('pages',0,0,$pages,true,$fieldname);
                         }
-
+                        echo 'fv_'.fv_get_field_type().fv_get_tag_type();
+                      wp_nonce_field('fv_'.fv_get_field_type().fv_get_tag_type(),'hash');  
                         echo '</tbody></table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" /></div></form>';
                 }
                 else
@@ -279,20 +339,21 @@ function manage_fv_descriptions()
                 {
                         ?>
 						<form name="posts-form" action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
+						 
 						<div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div><div class="clearer"></div>
                         <input type="hidden" name="action" value="posts" />
                         <table class="widefat">
                         <thead>
                         <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Title</th>
+                        <th scope="col" width="70">ID</th>
+                        <th scope="col" width="250">Title</th>
                         <th scope="col">Description</th>
                         </tr>
                         </thead>
                         <tbody>
                         <?php
                         manage_fv_descriptions_recursive('posts',0,0,$posts,true,$fieldname);
-
+                        wp_nonce_field('fv_'.fv_get_field_type().fv_get_tag_type(),'hash'); 
                         echo '</table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div></form>';
                 }
                 else
@@ -403,8 +464,8 @@ function manage_fv_descriptions()
                 <table class="widefat">
                 <thead>
                 <tr>
-                <th scope="col">Category ID</th>
-                <th scope="col">Category</th>
+                <th scope="col" width="70">ID</th>
+                <th scope="col" width="250">Category</th>
                 <th scope="col">Description</th>
                 </tr>
                 </thead>
@@ -422,11 +483,20 @@ function manage_fv_descriptions()
                         ?>
                         <tr>
                         <td><a href="<?php echo get_category_link($category->cat_ID) ?>"><?php echo $category->cat_ID ?></a></td>
+                        <?php if(fv_get_field_type() == 'title') : ?>
+                        <td><input  type="text" name="description_<?php echo $category->cat_ID ?>" value="<?php echo $category->cat_name ?>" /></td>
+                        <?php else : ?>
                         <td><?php echo $category->cat_name ?></td>
+                        <?php endif; ?>
+                         <?php if(fv_get_field_type() == 'description') : ?>
                         <td><input type="text" name="description_<?php echo $category->cat_ID ?>" value="<?php echo $category_value; ?>" size="70" /></td>
+                        <?php else : ?>
+                        <td><?php echo $category_value; ?></td>
+                        <?php endif; ?>
+                        
                         <?php
                 }
-
+                wp_nonce_field('fv_'.fv_get_field_type().fv_get_tag_type(),'hash'); 
                 echo '</table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div></form>';
 
                 } else { //End of check for categories
@@ -511,16 +581,30 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
 		if (get_magic_quotes_runtime())
 		{
 			$element_value = stripslashes($element_value);
-		}
+		} 
+		
+		
                 ?>
                 <tr>
                 <td><a href="<?php echo get_permalink($element->ID) ?>"><?php echo $element->ID ?></a></td>
-                <td><?php echo $pad.$element->post_title ?></td>
+                <?php if(fv_get_field_type() == 'title') : ?>
+                <td><input type="text"  title="<?php echo htmlspecialchars( $element->post_description ); ?>" name="tagdescription_<?php echo $element->ID ?>" id="tagdescription_<?php echo $element->ID ?>" value="<?php echo $pad.$element->post_title ?>"></td>
+                <?php else : ?>
+                 <td><?php echo $pad.$element->post_title ?></td>
+                <?php endif; ?>
                 <?php   ///   Modification 23/06/2009  Foliovision?>
                 <?php if($fieldname=='excerpt') : ?>
+                  <?php if(fv_get_field_type() == 'description') : ?>
                 <td><input type="text" title="<?php echo htmlspecialchars( $element->post_description ); ?>" name="tagdescription_<?php echo $element->ID ?>" id="tagdescription_<?php echo $element->ID ?>" value="<?php echo htmlspecialchars ($element_value); ?>" size="80" /></td>
+                  <?php else : ?>
+                <td><?php echo htmlspecialchars ($element_value); ?></td>
+                  <?php endif; ?>
                 <?php else : ?>
+                   <?php if(fv_get_field_type() == 'description') : ?>
                 <td><input type="text" title="<?php echo htmlspecialchars( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?>" name="tagdescription_<?php echo $element->ID ?>" id="tagdescription_<?php echo $element->ID ?>" value="<?php echo htmlspecialchars( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?>" size="80" /></td>
+                <?php else : ?>
+                <td><?php echo htmlspecialchars( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?></td>
+                <?php endif; ?>
                 <?php endif; ?>
                 <?php   ///   End of modifications ?>
                 
