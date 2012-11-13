@@ -222,10 +222,16 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 	?>
 
     <div class="wrap">
-        <div id="icon-tools" class="icon32"><br /></div>
-        
-        <h2>FV Descriptions</h2>
-        	        
+
+        <div style="position: absolute; top: 10px; right: 10px;">
+            <a href="http://foliovision.com/seo-tools/wordpress/plugins/foliopress-descriptions" target="_blank" title="Documentation"><img alt="visit foliovision" src="http://foliovision.com/shared/fv-logo.png" /></a>
+		    </div>
+ 
+        <div>
+            <div id="icon-tools" class="icon32"><br /></div>       
+            <h2>FV Descriptions</h2>
+        </div>
+	        
 	<ul class="subsubsub">
 	
 	<?php $url = preg_replace('/&description_tags_type=.*?$/','',$_SERVER['REQUEST_URI']) ?>
@@ -553,9 +559,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 				<!--<input type="submit" name="submit-option" value="Show" />-->
 			</form>
 		</div><div class="clearer"></div>
-		<div style="text-align: right;">
-            <a href="http://foliovision.com"><img alt="visit foliovision" src="http://foliovision.com/shared/fv-logo.png" /></a>
-		</div>
+
         </div>
         <?php
 }
