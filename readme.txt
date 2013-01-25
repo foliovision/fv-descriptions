@@ -11,7 +11,7 @@ Simple plugin which allows you to mass edit the description fields of your choic
 
 Simple plugin which allows you to **mass edit the description fields** of your choice.
 
-[Support](http://folhttp://foliovision.com/seo-tools/wordpress/plugins/foliopress-descriptions/)
+[Support](http://foliovision.com/seo-tools/wordpress/plugins/foliopress-descriptions)
 
 Supported description fields:
 
