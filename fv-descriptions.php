@@ -257,8 +257,8 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 	  <ul class="subsubsub">
 	      <li>Display:</li>
 	<?php $url = preg_replace('/&description_tags_type=.*?$/','',$_SERVER['REQUEST_URI']) ?>
-        <li><a href="<?php echo $url.'&description_tags_type=pages&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish; ?>) |</li>
-        <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts('post');  echo $postss->publish ; ?>) |</li> 
+        <li><a href="<?php echo $url.'&description_tags_type=pages&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish+ $pages->pending+ $pages->future+ $pages->private; ?>) |</li>
+        <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts('post');  echo $postss->publish+$postss->pending+$postss->future+$postss->private; ?>) |</li>
         <li><a href="<?php echo $url.'&description_tags_type=categories&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'categories'); ?>>Categories</a>(<?php $categories = get_categories(); $element_count = count($categories); echo ($element_count); ?>)</li>
     </ul>
 
