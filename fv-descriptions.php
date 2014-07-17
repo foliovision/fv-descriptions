@@ -11,6 +11,7 @@ Copyright (c) 2009 Foliovision (http://foliovision.com)
 
 Changelog:
 
+17/07/14 -  Turn off showing posts and pages which have post_status trash or draft
 11/12/12 -  Fixed search
 04/12/12 -  Items per page in screen options
 22/11/12 -  Added mass editing of titles and keywords
@@ -121,38 +122,34 @@ function manage_fv_descriptions()
 if(isset($_POST['action'])) {	
 if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) {
 
-	if (isset($_POST['action']) and ($_POST['action'] == 'pages'))
-	{
-		foreach ($_POST as $name => $value)
-		{
-			$value = stripslashes($value);				
-			if(fv_get_field_type() == 'description' or fv_get_field_type() == 'bothatonce') 
-      {
-        if(preg_match('/^tagdescription_(\d+)$/',$name,$matches))
-			  {
-  				if(stripos($fieldname, 'excerpt')===FALSE)
-          {        
-            update_post_meta($matches[1], $fieldname, $value);
-  				}
-          else {
-  				  $meta_value = wp_update_post(array('ID'=>$matches[1],'post_excerpt'=>$value)); 
-          }
-        }
-      }
-      if(fv_get_field_type() == 'title' or fv_get_field_type() == 'bothatonce') 
-      {  
-        if(preg_match('/^tagtitle_(\d+)$/',$name,$matches))
-			  {
-          $meta_value = wp_update_post(array('ID'=>$matches[1],'post_title'=>$value));
-        }
-      }
+	if (isset($_POST['action']) and ($_POST['action'] == 'pages')){
+	 
+		foreach ($_POST as $name => $value){		  
+			$value = stripslashes($value);
+			
+			if(fv_get_field_type() == 'description' or fv_get_field_type() == 'bothatonce'){
+			   
+			      if(preg_match('/^tagdescription_(\d+)$/',$name,$matches)){
+				 
+				 if(stripos($fieldname, 'excerpt')===FALSE){        
+				     update_post_meta($matches[1], $fieldname, $value);
+				 }else {
+				    $meta_value = wp_update_post(array('ID'=>$matches[1],'post_excerpt'=>$value)); 
+				 }
+			      }
+			}
+      
+			if(fv_get_field_type() == 'title' or fv_get_field_type() == 'bothatonce'){
+			   
+			      if(preg_match('/^tagtitle_(\d+)$/',$name,$matches)){
+				    $meta_value = wp_update_post(array('ID'=>$matches[1],'post_title'=>$value));
+			      }
+			}
 		}
-		echo '<div class="updated"><p>The custom page description / title have been updated.</p></div>';
-	}
-	elseif (isset($_POST['action']) and ($_POST['action'] == 'posts'))
-	{
-		foreach ($_POST as $name => $value)
-		{
+	 echo '<div class="updated"><p>The custom page description / title have been updated.</p></div>';
+	 
+	}elseif (isset($_POST['action']) and ($_POST['action'] == 'posts')){
+		foreach ($_POST as $name => $value){
 			$value = stripslashes($value);
 			if(fv_get_field_type() == 'description' or fv_get_field_type() == 'all3atonce')
       {
@@ -261,7 +258,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 	      <li>Display:</li>
 	<?php $url = preg_replace('/&description_tags_type=.*?$/','',$_SERVER['REQUEST_URI']) ?>
         <li><a href="<?php echo $url.'&description_tags_type=pages&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish; ?>) |</li>
-        <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts(); echo $postss->publish+$postss->pending+$postss->draft+$postss->future+$postss->private; ?>) |</li>
+        <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts('post');  echo $postss->publish ; ?>) |</li> 
         <li><a href="<?php echo $url.'&description_tags_type=categories&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'categories'); ?>>Categories</a>(<?php $categories = get_categories(); $element_count = count($categories); echo ($element_count); ?>)</li>
     </ul>
 
@@ -313,7 +310,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
                   $sql = ' AND (post_title LIKE "%'.$search_value.'%")';
                 }
                 
-                $pages = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "page" '.$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
+                $pages = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "page" AND post_status != "draft" AND post_status != "trash" '.$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
 
                 $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "page" '.$sql.' ORDER BY post_date DESC');       
                                      
@@ -378,7 +375,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
                   'numberposts' => get_option( 'fv_items_per_page' ),
                   'offset' => $page_no * get_option( 'fv_items_per_page' ),
                   //'post_status' => 'any'
-                  'post_status' => array('publish', 'pending', 'draft', 'future', 'private')
+                  'post_status' => array('publish', 'pending', 'future', 'private')
                )
             );
 
@@ -569,7 +566,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 }
 
 function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $elements = 0, $hierarchical = true, $fieldname)
-{
+{   
 	if (! $elements)
 	{
 		return;
