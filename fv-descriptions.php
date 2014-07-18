@@ -11,7 +11,8 @@ Copyright (c) 2009 Foliovision (http://foliovision.com)
 
 Changelog:
 
-17/07/14 -  Turn off showing posts and pages which have post_status trash or draft
+18/07/14 -  Listing, saving keywords, saving options, design
+17/07/14 -  Simple seeting of unwanted post types
 11/12/12 -  Fixed search
 04/12/12 -  Items per page in screen options
 22/11/12 -  Added mass editing of titles and keywords
@@ -99,7 +100,7 @@ function fv_detect_plugin()
       return '_aioseop_description';
     }
   }
-  return '';
+  return 'excerpt';
 }
 
 
@@ -110,20 +111,26 @@ function manage_fv_descriptions()
 	$search_value = '';
 	$search_query_string = '';
 	
-	if(isset($_POST['selectfield'])) {
-        update_option('fv_descriptions_field',$_POST['selectfield']);
-    } else {
-       update_option('fv_descriptions_field',fv_detect_plugin()); 
-    }
-    $fieldname = get_option('fv_descriptions_field');
-    if($fieldname == '')
-        $fieldname = 'excerpt';    //  default field to show
-
-if(isset($_POST['action'])) {	
-if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) {
-
-	if (isset($_POST['action']) and ($_POST['action'] == 'pages')){
+	 if(isset($_GET['selectfield'])) {
+	    update_option('fv_descriptions_field',$_GET['selectfield']);
+	 }elseif(get_option('fv_descriptions_field') === FALSE ){	    	     
+	    update_option('fv_descriptions_field',fv_detect_plugin()); 
+	 }
 	 
+	 $fieldname = get_option('fv_descriptions_field');
+	 
+	 if($_GET['description_tags_type']==='post'){
+	    
+	 }elseif($_GET['description_tags_type']==='page'){
+	    
+	 }
+
+if(isset($_POST['action'])) {
+   
+   if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())){
+	
+	if (isset($_POST['action']) and ($_POST['action'] == 'pages')){
+	        
 		foreach ($_POST as $name => $value){		  
 			$value = stripslashes($value);
 			
@@ -131,7 +138,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 			   
 			      if(preg_match('/^tagdescription_(\d+)$/',$name,$matches)){
 				 
-				 if(stripos($fieldname, 'excerpt')===FALSE){        
+				 if(stripos($fieldname, 'excerpt')=== FALSE){				    
 				     update_post_meta($matches[1], $fieldname, $value);
 				 }else {
 				    $meta_value = wp_update_post(array('ID'=>$matches[1],'post_excerpt'=>$value)); 
@@ -146,87 +153,93 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 			      }
 			}
 		}
+		
 	 echo '<div class="updated"><p>The custom page description / title have been updated.</p></div>';
 	 
 	}elseif (isset($_POST['action']) and ($_POST['action'] == 'posts')){
+		
 		foreach ($_POST as $name => $value){
 			$value = stripslashes($value);
-			if(fv_get_field_type() == 'description' or fv_get_field_type() == 'all3atonce')
-      {
-        if(preg_match('/^tagdescription_(\d+)$/',$name,$matches))
-        {	
-				  if(stripos($fieldname, 'excerpt')===FALSE)
-          {
-            delete_post_meta($matches[1], $fieldname);
-            add_post_meta($matches[1], $fieldname, $value);
-			    }
-          else {
-			      $meta_value = wp_update_post(array('ID'=>$matches[1],'post_excerpt'=>$value));
-          }
-        }
-      }        
-      if(fv_get_field_type() == 'title' or fv_get_field_type() == 'all3atonce')
-      {
-        if(preg_match('/^tagtitle_(\d+)$/',$name,$matches))
-        {
-          $meta_value = wp_update_post(array('ID'=>$matches[1],'post_title'=>$value));
-        }
-      }        
-      if(fv_get_field_type() == 'keywords' or fv_get_field_type() == 'all3atonce') 
-      {
-        if(preg_match('/^tagkeywords_(\d+)$/',$name,$matches))
-        {          
-          wp_set_post_tags( $matches[1], $value );                   
-        }  
-      }       
+			
+			if(fv_get_field_type() == 'description' or fv_get_field_type() == 'all3atonce'){	 
+			   if(preg_match('/^tagdescription_(\d+)$/',$name,$matches)){	
+			      if(stripos($fieldname, 'excerpt')===FALSE){
+				 delete_post_meta($matches[1], $fieldname);
+				 add_post_meta($matches[1], $fieldname, $value);
+			      }else {
+				 $meta_value = wp_update_post(array('ID'=>$matches[1],'post_excerpt'=>$value));
+			      }
+			   }
+			}
+			
+			if(fv_get_field_type() == 'title' or fv_get_field_type() == 'all3atonce'){
+			   if(preg_match('/^tagtitle_(\d+)$/',$name,$matches)){
+			      echo $matches[1];
+			      $meta_value = wp_update_post(array('ID'=>$matches[1],'post_title'=>$value));
+			   }
+			}
+			
+			if(fv_get_field_type() == 'keywords' or fv_get_field_type() == 'all3atonce'){
+			   if(preg_match('/^tagkeywords_(\d+)$/',$name,$matches)){ 
+			      wp_set_post_tags($matches[1], $value ,true);                   
+			   }  
+			}       
 		}
 		echo '<div class="updated"><p>The custom post description / title / keywords have been updated.</p></div>';
-	}
-	elseif (isset($_POST['action']) and ($_POST['action'] == 'categories'))
-	{
-		foreach ($_POST as $name => $value)
-		{
-      if(fv_get_field_type() == 'description' or fv_get_field_type() == 'bothatonce') 
-      {
-        if(preg_match('/^description_(\d+)$/',$name,$matches))
-			  {
-			    $description = stripslashes($_POST['description_'.$matches[1]]);
-				  $description = $wpdb->escape($description);
-				  $category = get_category($matches[1], ARRAY_A);
-				  $category['description'] = $description;
-			  }
-      } 
-      if(fv_get_field_type() == 'title' or fv_get_field_type() == 'bothatonce')         
-			{
-        if(preg_match('/^title_(\d+)$/',$name,$matches))
-        { 
-          $description = stripslashes($_POST['title_'.$matches[1]]);
-				  $description = $wpdb->escape($description);
-				  $category = get_category($matches[1], ARRAY_A);
-          $category['name'] = $description;
-        }
-      }
+	
+	}elseif (isset($_POST['action']) and ($_POST['action'] == 'categories')){
+	 
+		foreach ($_POST as $name => $value){
+			if(fv_get_field_type() == 'description' or fv_get_field_type() == 'bothatonce'){
+			   if(preg_match('/^description_(\d+)$/',$name,$matches)){
+				 $description = stripslashes($_POST['description_'.$matches[1]]);
+				 $description = $wpdb->escape($description);
+				 $category = get_category($matches[1], ARRAY_A);
+				 $category['description'] = $description;
+			   }
+			}
+			
+			if(fv_get_field_type() == 'title' or fv_get_field_type() == 'bothatonce'){
+			   if(preg_match('/^title_(\d+)$/',$name,$matches)){ 
+				 $description = stripslashes($_POST['title_'.$matches[1]]);
+				 $description = $wpdb->escape($description);
+				 $category = get_category($matches[1], ARRAY_A);
+				 $category['name'] = $description;
+			   }
+			}
 			wp_insert_category($category);
 		}
 		echo '<div class="updated"><p>The custom Category description / title have been saved.</p></div>';
+		
+	}elseif (isset($_POST['search_value'])){
+		$search_value = esc_sql($_POST['search_value']);
 	}
-	
-  elseif (isset($_POST['search_value']))
-	{
-		$search_value = $_POST['search_value'];
-	}
-} else {
+   } else {
     echo '<div class="error"><p>Nonce verification failed.</p></div>';
-}
+   }
 }
 	
   $search_value = (isset($_POST['search_value']))
       ? $_POST['search_value']
       : $_GET['search_value'];
  
-  global $description_tags_type;
+        global $description_tags_type;
 	$description_tags_type = $_GET['description_tags_type'];
 	$page_no = $_GET['page_no'];
+	
+	    /*Here($aUnwanted_post_status) you can set up, which post_status you won't have in your search.**/
+	    $aUnwanted_post_status=array('draft','trash','auto-draft','inherit');
+	    $sSql_unwanted_post_status='';
+	 
+	       for($i=0;$i<count($aUnwanted_post_status);$i++){
+		  if($i!=count($aUnwanted_post_status)-1)
+		       $sSql_unwanted_post_status.='post_status !="'.$aUnwanted_post_status[$i].'" AND ';
+	         else
+		      $sSql_unwanted_post_status.='post_status !="'.$aUnwanted_post_status[$i].'" ';
+		   }	 
+	    
+	 
+	
 	$element_count = 0;
 
 	$_SERVER['QUERY_STRING'] = preg_replace('/&description_tags_type=[^&]+/','',$_SERVER['QUERY_STRING']);
@@ -235,7 +248,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 	$_SERVER['QUERY_STRING'] = preg_replace('/&search_value=[^&]*/','',$_SERVER['QUERY_STRING']);
 	$search_query_string = '&search_value='.$search_value;
 
-	if(! $page_no)
+	if(!$page_no)
 	{
 		$page_no = 0;
 	}
@@ -256,9 +269,9 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
   	        
 	  <ul class="subsubsub">
 	      <li>Display:</li>
-	<?php $url = preg_replace('/&description_tags_type=.*?$/','',$_SERVER['REQUEST_URI']) ?>
-        <li><a href="<?php echo $url.'&description_tags_type=pages&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish+ $pages->pending+ $pages->future+ $pages->private; ?>) |</li>
-        <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts('post');  echo $postss->publish+$postss->pending+$postss->future+$postss->private; ?>) |</li>
+	<?php $url = preg_replace('/&description_tags_type=.*?$/','',$_SERVER['REQUEST_URI']); ?>
+        <li><a href="<?php echo $url.'&description_tags_type=pages&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a></a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish+ $pages->pending+ $pages->future+ $pages->private; ?>) |</li>
+        <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts('post');  echo $postss->publish+$postss->pending+$postss->future+$postss->private; ?>) |</li> 
         <li><a href="<?php echo $url.'&description_tags_type=categories&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'categories'); ?>>Categories</a>(<?php $categories = get_categories(); $element_count = count($categories); echo ($element_count); ?>)</li>
     </ul>
 
@@ -267,14 +280,14 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
     <ul class="subsubsub" style="position: absolute; left: 0px;">
     <li>Change:</li>
     <?php $url = preg_replace('/&description_field_type=\w+/','',$_SERVER['REQUEST_URI']) ?>
-      <li><a href="<?php echo $url.'&description_field_type=description'; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'description'); if ($_REQUEST['description_field_type']=='') echo 'class=current'; ?>>Description</a> | </li>
-      <li><a href="<?php echo $url.'&description_field_type=title'; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'title'); ?>>Title</a> | </li>
+      <li><a href="<?php echo $url.'&description_field_type=description&page_no='.$page_no; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'description'); if ($_REQUEST['description_field_type']=='') echo 'class=current'; ?>>Description</a> | </li>
+      <li><a href="<?php echo $url.'&description_field_type=title&page_no='.$page_no; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'title'); ?>>Title</a> | </li>
       <?php if ($description_tags_type != 'posts') { ?>
-      <li><a href="<?php echo $url.'&description_field_type=bothatonce'; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'bothatonce'); ?>>Both at once</a></li> 
+      <li><a href="<?php echo $url.'&description_field_type=bothatonce&page_no='.$page_no; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'bothatonce'); ?>>Both at once</a></li> 
       <?php } ?>
       <?php if ($description_tags_type == 'posts') { ?>
-      <li><a href="<?php echo $url.'&description_field_type=keywords'; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'keywords'); ?>>Keywords</a> | </li>
-      <li><a href="<?php echo $url.'&description_field_type=all3atonce'; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'all3atonce'); ?>>All 3 at once</a></li> 
+      <li><a href="<?php echo $url.'&description_field_type=keywords&page_no='.$page_no; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'keywords'); ?>>Keywords</a> | </li>
+      <li><a href="<?php echo $url.'&description_field_type=all3atonce&page_no='.$page_no;?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'all3atonce'); ?>>All 3 at once</a></li> 
       <?php } ?>
     </ul>
     
@@ -282,37 +295,42 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 
     
     <div style="text-align: right;">
-		<form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
+		<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
 			<input type="text" name="search_value" value="<?php if (isset($search_value)) echo $search_value; ?>" size="17" />
 			<input type="submit" value="Search" class="button" />
 		</form>                       
 	</div>
-	  	
+    
     <div class="tablenav">
         <div class="alignleft actions">
-            <form name="selectform" action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
-                Select field to display: <select name="selectfield">
-                    <option value="excerpt"<?php if($fieldname=="excerpt") echo ' selected'; ?>>post_excerpt</option>
+            <form name="selectform" method="get">
+	       <input type="hidden" name="page" value="fv_descriptions">
+	       <input type="hidden" name="description_tags_type" value="<?php if($description_tags_type){echo $description_tags_type;}else{echo "pages" ;} ?>">
+	       <input type="hidden" name="page_no" value="<?php echo $page_no;?>">
+	       <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
+                Select field to display:
+		<select name="selectfield">
+                    <option value="excerpt"<?php if($fieldname=="excerpt") echo ' selected';  ?>>post_excerpt</option>
                     <option value="thesis_description"<?php if($fieldname=="thesis_description") echo ' selected'; ?>>thesis_description</option>
                     <option value="_aioseop_description"<?php if($fieldname=="_aioseop_description") echo ' selected'; ?>>All In One SEO</option>
                 </select>
-                <input type="submit" value="Apply" name="doaction" id="doaction" class="button-secondary action" />
+                <input type="submit" value="Apply" class="button-secondary action" />
             </form>
         </div>
     </div>  
-	
+    
 	<fieldset class="options">
         <?php
-
+	
         if((empty($description_tags_type)) or ($description_tags_type == 'pages'))
         {
                 if (!empty($search_value)) {
                   $sql = ' AND (post_title LIKE "%'.$search_value.'%")';
                 }
                 
-                $pages = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "page" AND post_status != "draft" AND post_status != "trash" '.$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
+                $pages = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status .$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
 
-                $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "page" '.$sql.' ORDER BY post_date DESC');       
+                $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status.$sql.' ORDER BY post_date DESC');       
                                      
                 ?>                           
                 <div class="tablenav top">
@@ -326,7 +344,20 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
                         else echo $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ); 
                         ?> of <?php echo $element_count; ?>
                       </span>
-                      <?php 
+                      <?php
+		      if ($page_no > 0){			
+			$max_page=$element_count/get_option('fv_items_per_page');
+			if($page_no>$max_page) {
+			   $page_no=$max_page;
+			  }
+                      }
+		      
+		      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
+			if($page_no<0){
+			  $page_no=-1;
+			  }
+		      }
+		      
                       $prev_page=$page_no-1;
                       $next_page=$page_no+1;
                       if ($page_no > 0) echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; 
@@ -338,7 +369,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
                 if ($pages)
                 {
                 ?>
-                <form name="pages-form" action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
+                <form name="pages-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
 			            <div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div><div class="clearer"></div>
                   <input type="hidden" name="action" value="pages" /> 
                   <table class="widefat">  
@@ -369,32 +400,14 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
         }
         elseif ($description_tags_type == 'posts')
         {
+	        if (!empty($search_value)) {
+                  $sql = ' AND (post_title LIKE "%'.$search_value.'%")';
+                }
+		
+	        $posts = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
 
-            $posts = get_posts(
-               array(
-                  'numberposts' => get_option( 'fv_items_per_page' ),
-                  'offset' => $page_no * get_option( 'fv_items_per_page' ),
-                  //'post_status' => 'any'
-                  'post_status' => array('publish', 'pending', 'future', 'private')
-               )
-            );
-
-            foreach( $posts as $key => $objPost ){
-               $aTags = wp_get_post_tags( $objPost->ID, array() );
-               foreach( $aTags as $keyTag => $objTag )
-                  $aTags[$keyTag] = $objTag->name;
-               $objPost->tags = implode( ', ', $aTags );
-            }
-
-
-            if( !empty( $search_value ) ){
-               foreach( $posts as $key => $objPost )
-                  if( false === stripos( $objPost->post_title, $search_value ) )
-                     unset( $posts[$key] );
-            }
-
-            $element_count = count($posts);
-
+                $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.' ORDER BY post_date DESC');       
+                         
                 ?>
                 <div class="tablenav top">
                   <div class="tablenav-pages">
@@ -408,18 +421,38 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
                         ?> of <?php echo $element_count; ?>
                       </span>
                       <?php 
-                      $prev_page=$page_no-1;
-                      $next_page=$page_no+1;
-                      if ($page_no > 0) echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; 
-                      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count) echo '<a class="next-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$next_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&raquo;</a>';?>   
-                    </span>	        
+                      
+		      if ($page_no > 0){			
+			$max_page=$element_count/get_option('fv_items_per_page');
+			if($page_no>$max_page) {
+			   $page_no=$max_page;
+			  }
+                      }
+		      
+		      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
+			if($page_no<0){
+			  $page_no=-1;
+			  }
+		      }
+			$prev_page=$page_no-1;
+                        $next_page=$page_no+1;
+			
+		      if ($page_no > 0)			
+		      echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>';
+		      
+		      
+                      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count)
+		      echo '<a class="next-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$next_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&raquo;</a>';
+		      ?>   
+                     
+		    </span>	        
                   </div>
                 </div>                
                 <?php 
                 if ($posts)
                 {
                         ?>
-						<form name="posts-form" action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
+						<form name="posts-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
 						 
 						<div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div><div class="clearer"></div>
                         <input type="hidden" name="action" value="posts" />
@@ -497,7 +530,21 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
                         else echo $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ); 
                         ?> of <?php echo $element_count; ?>
                       </span>
-                      <?php 
+                      <?php
+		      
+		      if ($page_no > 0){			
+			$max_page=$element_count/get_option('fv_items_per_page');
+			if($page_no>$max_page) {
+			   $page_no=$max_page;
+			  }
+                      }
+		      
+		      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
+			if($page_no<0){
+			  $page_no=-1;
+			  }
+		      }
+		      
                       $prev_page=$page_no-1;
                       $next_page=$page_no+1;
                       if ($page_no > 0) echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; 
@@ -508,7 +555,7 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
                 <?php 
                 if($categories) {
                 ?>
-				<form name="categories-form" action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post">
+				<form name="categories-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
 				<div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div><div class="clearer"></div>
                 <input type="hidden" name="action" value="categories" />
                 <table class="widefat">
@@ -566,7 +613,8 @@ if(wp_verify_nonce($_POST['hash'],'fv_'.fv_get_field_type().fv_get_tag_type())) 
 }
 
 function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $elements = 0, $hierarchical = true, $fieldname)
-{   
+{
+   
 	if (! $elements)
 	{
 		return;
@@ -621,9 +669,24 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
               <?php global $description_tags_type;  
               if ($description_tags_type == 'posts') { ?>
                 <?php if(fv_get_field_type() == 'keywords' or fv_get_field_type() == 'all3atonce') : ?>
-                <td><input type="text"  title="<?php echo htmlspecialchars( $element->post_description ); ?>" name="tagkeywords_<?php echo $element->ID ?>" id="tagkeywords_<?php echo $element->ID ?>" value="<?php echo $pad.$element->tags; ?>"></td>
+                <td><input type="text" <?php if(fv_get_field_type() == 'all3atonce') echo 'size="20"'; ?> title="<?php echo htmlspecialchars( $element->post_description ); ?>" name="tagkeywords_<?php echo $element->ID ?>" id="tagkeywords_<?php echo $element->ID ?>"
+			   value="<?php
+			   $keywords=get_the_tags($element->ID);
+			   for($i=0;$i<count($keywords);$i++){
+			    if($i===count($keywords)-1) echo $keywords[$i]->name;
+			    else echo $keywords[$i]->name.',';  
+			   }
+			  ?>"></td>
                 <?php else : ?>
-                 <td><?php echo $pad.$element->tags; ?></td>
+                 <td>
+		  <?php
+			   $keywords=get_the_tags($element->ID);
+			   for($i=0;$i<count($keywords);$i++){
+			    if($i===count($keywords)-1) echo $keywords[$i]->name;
+			    else echo $keywords[$i]->name.','; 
+			   }
+		  ?>
+		 </td>
                 <?php endif; ?>
               <?php } ?>  
 
