@@ -11,6 +11,7 @@ Copyright (c) 2009 Foliovision (http://foliovision.com)
 
 Changelog:
 
+05/08/14 -  Improving paging after change fv_items_per_page
 20/07/14 -  Added input (choose and jump to page)
 18/07/14 -  Listing, saving keywords, saving options, design
 17/07/14 -  Simple seeting of unwanted post types
@@ -61,11 +62,10 @@ if( is_admin() ){
    add_action( 'admin_menu', array( 'FvDescriptionAdmin', 'AddManagement' ) );
    add_filter( 'screen_settings', array( 'FvDescriptionAdmin', 'ScreenOptions' ), 10, 2 );
 }
- 
+
 function save_my_option(){
    if( isset( $_POST['fv-items-per-page'] ) ){
       update_option( 'fv_items_per_page', $_POST['fv-items-per-page'] );
-      echo '<form method="GET"><input type="hidden" name="page_no" value="0"></form>';
    }
 }
  
@@ -82,6 +82,7 @@ function fv_get_field_type()
   
   return $type;
 }
+
 function fv_get_tag_type() 
 {
   $type = $_REQUEST["description_tags_type"];
@@ -104,7 +105,6 @@ function fv_detect_plugin()
   }
   return 'excerpt';
 }
-
 
 function manage_fv_descriptions()
 {
@@ -229,9 +229,10 @@ if(isset($_POST['action'])) {
 	    $page_no = $_GET['page_no'];
 	}
 	
-	if($change || isset($_POST['fv-items-per-page'])){
+	if($change){
 	    unset_choosen_get('change_page');
 	    $change=false;
+	    
 	}
 	    /*Here($aUnwanted_post_status) you can set up, which post_status you won't have in your search.**/
 	    $aUnwanted_post_status=array('draft','trash','auto-draft','inherit');
@@ -309,13 +310,12 @@ if(isset($_POST['action'])) {
     
     <div class="tablenav">
         <div class="alignleft actions">
-            Select field to display:
+            Select field to display in Description column:
 	    <form name="selectform" method="get">
 	       <input type="hidden" name="page" value="fv_descriptions">
 	       <input type="hidden" name="description_tags_type" value="<?php if($description_tags_type){echo $description_tags_type;}else{echo "pages" ;} ?>">
 	       <input type="hidden" name="page_no" value="<?php echo $page_no;?>">
 	       <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
-                
 		<select name="selectfield">
                     <option value="excerpt"<?php if($fieldname=="excerpt") echo ' selected';  ?>>post_excerpt</option>
                     <option value="thesis_description"<?php if($fieldname=="thesis_description") echo ' selected'; ?>>thesis_description</option>
@@ -351,7 +351,8 @@ if(isset($_POST['action'])) {
                 $pages = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status .$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
 
                 $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status.$sql.' ORDER BY post_date DESC');       
-                                     
+                
+	        avoid_absent_page_no($element_count);
                 ?>                           
                 <div class="tablenav top">
                   <div class="tablenav-pages" style="line-height: 10px;">
@@ -371,13 +372,12 @@ if(isset($_POST['action'])) {
 			if($page_no>=$max_page){			   
 			   $page_no=$max_page-1;
 			  }
-                      
-		      
-		      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
-			if($page_no<0){
-			  $page_no=0;
-			  }
-		      }
+			  
+			if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
+			   if($page_no<0){
+			      $page_no=0;
+			   }
+			}
 		      
                       $prev_page=$page_no-1;
                       $next_page=$page_no+1;
@@ -396,7 +396,7 @@ if(isset($_POST['action'])) {
 			      <input type="hidden" name="description_tags_type" value="<?php if($description_tags_type){echo $description_tags_type;}else{echo "pages" ;} ?>">
 			      <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
 			      Go to page:
-			      <input type="number"  name="change_page" value="<?php echo $page_no+1;?>" max="<?php echo $max_page; ?>" min="1" >
+			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="change_page" value="<?php echo $page_no+1;?>" max="<?php echo $max_page; ?>" min="1" >
 			      <input type="submit" value="GO">
 			      </form>
 			</span>
@@ -448,7 +448,8 @@ if(isset($_POST['action'])) {
 	        $posts = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
 
                 $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.' ORDER BY post_date DESC');       
-                         
+                 
+	        avoid_absent_page_no($element_count);        
                 ?>
                 <div class="tablenav top">
                   <div class="tablenav-pages" style="line-height: 10px;">
@@ -468,7 +469,9 @@ if(isset($_POST['action'])) {
 			$max_page=ceil($element_count/get_option('fv_items_per_page'));
 			if($page_no>=$max_page) {
 			   $page_no=$max_page-1;
-			  }
+			}
+			
+			
                       
 		      
 		      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
@@ -501,7 +504,7 @@ if(isset($_POST['action'])) {
 			      <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
 			      <input type="hidden" name="page_no" value="<?php echo $page_no;?>">
 			      Go to page:
-			      <input type="number" name="change_page" value="<?php echo $page_no+1;?>"  max="<?php echo $max_page; ?>" min="1">			      
+			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="change_page" value="<?php echo $page_no+1;?>"  max="<?php echo $max_page; ?>" min="1">			      
 			      <input type="submit" value="GO">
 			      </form>
 			</span>
@@ -570,7 +573,7 @@ if(isset($_POST['action'])) {
                 }
 
                 $element_count = count($categories);
-
+                avoid_absent_page_no($element_count);
                 if (($element_count > get_option( 'fv_items_per_page' )) and (($page_no != 'all') or empty($page_no)))
                 {
                 	if($page_no > 0)
@@ -624,7 +627,7 @@ if(isset($_POST['action'])) {
 			      <input type="hidden" name="description_tags_type" value="<?php if($description_tags_type){echo $description_tags_type;}else{echo "pages" ;} ?>">
 			      <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
 			      Go to page:
-			      <input type="number" name="change_page" value="<?php echo $page_no+1;?>" max="<?php echo $max_page;?>" min="1" >
+			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="change_page" value="<?php echo $page_no+1;?>" max="<?php echo $max_page;?>" min="1" >
 			      <input type="submit" value="GO">
 			      </form>
 			</span>
@@ -774,12 +777,14 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
 
               
                 <!-- <td><?php //echo $element->post_type ?></td> -->
-                <?php
-
+                <?php	        
+		
+		
+		
                 if ($hierarchical)
                 {
-                	manage_fv_descriptions_recursive($type, $element->ID,$level + 1, $elements, $hierarchical, $fieldname);
-                }
+                  manage_fv_descriptions_recursive($type, $element->ID,$level + 1, $elements, $hierarchical, $fieldname);                
+		}
 	}
 }
 
@@ -796,30 +801,61 @@ function unset_choosen_get($choosen_get){
 	$current_url = $_SERVER['REQUEST_URI'];
 	$current_url = explode('&',$current_url);
 	
-	$new_URL='tools.php?page=fv_descriptions&';
+	$new_URL = 'tools.php?page=fv_descriptions&';
 	
 	for($i = 1;$i < sizeof($current_url); $i++){
 	    
 	    if(strpos($current_url[$i],$choosen_get) !== false){
-	       $value=explode('=',$current_url[$i]);
+	       $value = explode('=',$current_url[$i]);
 	       $value[1]--;
 	    }else{
 	       if(strpos($current_url[$i],'page_no') !== false){
 		  
 	       }else{
-		  $new_URL .=$current_url[$i].'&';
+		  $new_URL .= $current_url[$i].'&';
 	       }
 	    }
 	    
 	}
 	
    if(empty($value)){
-      $new_URL=$new_URL.'page_no=0';
+      $new_URL = $new_URL.'page_no=0';
    }else{
-      $new_URL=$new_URL.'page_no='.$value[1];
+      $new_URL = $new_URL.'page_no='.$value[1];
    }
    
    header("Location: $new_URL");
 }
+
+function get_style_width_listing_input($max_page){
+      if($max_page-1 <10){
+	 return 40;
+      }elseif($max_page-1>=10 && $max_page-1<100){
+	 return 50;		   
+      }
+      
+      return 60;
+}
+
+function avoid_absent_page_no($count){
+   
+   if(isset($_POST['fv-items-per-page'])){
+         
+	 $current_page = $_GET['page_no'];
+	 
+	 if( $current_page * $_POST['fv-items-per-page'] > $count ){
+	    
+	    $last_page = ceil($count/get_option( 'fv_items_per_page' )) - 1;
+	    //echo $last_page;
+	    $new_URL = 'tools.php?'.$_SERVER['QUERY_STRING'].'&description_tags_type='.fv_get_tag_type().'&page_no='.$last_page;
+	    // echo $new_URL;
+	    header("Location: $new_URL");
+	    
+	 }
+	 
+   }
+   
+}
+
 
 ?>
