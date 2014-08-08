@@ -12,10 +12,10 @@ Copyright (c) 2009 Foliovision (http://foliovision.com)
 Changelog:
 
 08/08/14 -  Renamed items in "Field to display ...", removed this field from Categories 
-05/08/14 -  Improving paging after chenge fv_items_per_page
+05/08/14 -  Improving paging after change fv_items_per_page
 20/07/14 -  Added input (choose and jump to page)
 18/07/14 -  Listing, saving keywords, saving options, design
-17/07/14 -  Simple seeting of unwanted post types
+17/07/14 -  Simple setting of unwanted post types
 11/12/12 -  Fixed search
 04/12/12 -  Items per page in screen options
 22/11/12 -  Added mass editing of titles and keywords
@@ -171,7 +171,6 @@ if(isset($_POST['action'])) {
 			
 			if(fv_get_field_type() == 'title' or fv_get_field_type() == 'all3atonce'){
 			   if(preg_match('/^tagtitle_(\d+)$/',$name,$matches)){
-			      echo $matches[1];
 			      $meta_value = wp_update_post(array('ID'=>$matches[1],'post_title'=>$value));
 			   }
 			}
@@ -541,7 +540,6 @@ if(isset($_POST['action'])) {
                 else
                 {
                 	echo '<p><b>No posts found!</b></p>';
-                	echo $sql;
                 }
         }
         elseif ($description_tags_type == 'categories')
@@ -776,9 +774,6 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
 		 </td>
                 <?php endif; ?>
               <?php } ?>  
-
-              
-                <!-- <td><?php //echo $element->post_type ?></td> -->
                 <?php	        
 		
 		
@@ -848,9 +843,7 @@ function avoid_absent_page_no($count){
 	 if( $current_page * $_POST['fv-items-per-page'] > $count ){
 	    
 	    $last_page = ceil($count/get_option( 'fv_items_per_page' )) - 1;
-	    //echo $last_page;
 	    $new_URL = 'tools.php?'.$_SERVER['QUERY_STRING'].'&description_tags_type='.fv_get_tag_type().'&page_no='.$last_page;
-	    // echo $new_URL;
 	    header("Location: $new_URL");
 	    
 	 }
