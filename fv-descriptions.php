@@ -11,7 +11,8 @@ Copyright (c) 2009 Foliovision (http://foliovision.com)
 
 Changelog:
 
-05/08/14 -  Improving paging after change fv_items_per_page
+08/08/14 -  Renamed items in "Field to display ...", removed this field from Categories 
+05/08/14 -  Improving paging after chenge fv_items_per_page
 20/07/14 -  Added input (choose and jump to page)
 18/07/14 -  Listing, saving keywords, saving options, design
 17/07/14 -  Simple seeting of unwanted post types
@@ -307,7 +308,7 @@ if(isset($_POST['action'])) {
 			<input type="submit" value="Search" class="button" />
 		</form>                       
 	</div>
-    
+    <?php if($_GET['description_tags_type'] !== 'categories') { ?>
     <div class="tablenav">
         <div class="alignleft actions">
             Select field to display in Description column:
@@ -317,14 +318,15 @@ if(isset($_POST['action'])) {
 	       <input type="hidden" name="page_no" value="<?php echo $page_no;?>">
 	       <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
 		<select name="selectfield">
-                    <option value="excerpt"<?php if($fieldname=="excerpt") echo ' selected';  ?>>post_excerpt</option>
+                    <option value="excerpt"<?php if($fieldname=="excerpt") echo ' selected';  ?>>Excerpt</option>
                     <option value="thesis_description"<?php if($fieldname=="thesis_description") echo ' selected'; ?>>thesis_description</option>
-                    <option value="_aioseop_description"<?php if($fieldname=="_aioseop_description") echo ' selected'; ?>>All In One SEO</option>
+                    <option value="_aioseop_description"<?php if($fieldname=="_aioseop_description") echo ' selected'; ?>>All In One SEO Meta Description</option>
                 </select>
                 <input type="submit" value="Apply" class="button-secondary action" />
             </form>
         </div>
-    </div><br>  
+    </div><br>
+    <?php } ?>
     
 	<fieldset class="options">
         <?php
