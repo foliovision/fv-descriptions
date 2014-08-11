@@ -1,8 +1,8 @@
 === FV Descriptions ===
 Contributors: FolioVision
-Tags: meta description,description,post,all in one seo,seo,thesis
+Tags: meta description,description,post,pages,categories,all in one seo,seo,thesis,excerpt
 Requires at least: 2.7
-Tested up to: 2.8.4
+Tested up to: 3.9.2
 Stable tag: trunk
 
 Simple plugin which allows you to mass edit the description fields of your choice.
@@ -16,11 +16,20 @@ Simple plugin which allows you to **mass edit the description fields** of your c
 Supported description fields:
 
 * [FV All In One SEO](http://foliovision.com/seo-tools/wordpress/plugins/fv-all-in-one-seo-pack/)
-* All In One SEO
+* All In One SEO Meta Description
 * Thesis description
 * Wordpress post excerpt
 
 == Changelog ==
+
+= Version 1.3.2 =
+
+* NEW VERSION
+* Added mass editing of titles and keywords
+* Items per page in screen options
+* Fixed search
+* Simple setting of unwanted post types
+* Fixed paging, saving options, design
 
 = Version 1.3.1 = 
 
@@ -32,7 +41,6 @@ Supported description fields:
 
 = Version 1.2 =
 
-* current version
 * first public release
 * support for new All in One SEO Pack and [FV All in One SEO Pack](http://foliovision.com/seo-tools/wordpress/plugins/fv-all-in-one-seo-pack/)
 
