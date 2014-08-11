@@ -24,7 +24,6 @@ Supported description fields:
 
 = Version 1.3.2 =
 
-* NEW VERSION
 * Added mass editing of titles and keywords
 * Items per page in screen options
 * Fixed search
