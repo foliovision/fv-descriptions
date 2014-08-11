@@ -11,11 +11,9 @@ Copyright (c) 2009 Foliovision (http://foliovision.com)
 
 Changelog:
 
-08/08/14 -  Renamed items in "Field to display ...", removed this field from Categories 
-05/08/14 -  Improving paging after change fv_items_per_page
-20/07/14 -  Added input (choose and jump to page)
-18/07/14 -  Listing, saving keywords, saving options, design
-17/07/14 -  Simple setting of unwanted post types
+08/08/14 -  Fixed select of items to be displayed in Description column
+18/07/14 -  Fixed paging, saving options, design
+17/07/14 -  Simple settings of unwanted post types
 11/12/12 -  Fixed search
 04/12/12 -  Items per page in screen options
 22/11/12 -  Added mass editing of titles and keywords
