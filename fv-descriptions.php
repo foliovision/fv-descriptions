@@ -255,7 +255,7 @@ if(isset($_POST['action'])) {
 
 	if(!$page_no)
 	{
-		$page_no = 0;
+		$page_no = 1;
 	}
 	?>
 
@@ -275,9 +275,9 @@ if(isset($_POST['action'])) {
 	  <ul class="subsubsub">
 	      <li>Display:</li>
 	<?php $url = preg_replace('/&description_tags_type=.*?$/','',$_SERVER['REQUEST_URI']); ?>
-        <li><a href="<?php echo $url.'&description_tags_type=pages&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a></a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish+ $pages->pending+ $pages->future+ $pages->private; ?>) |</li>
-        <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts('post');  echo $postss->publish+$postss->pending+$postss->future+$postss->private; ?>) |</li> 
-        <li><a href="<?php echo $url.'&description_tags_type=categories&page_no=0'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'categories'); ?>>Categories</a>(<?php $categories = get_categories(); $element_count = count($categories); echo ($element_count); ?>)</li>
+        <li><a href="<?php echo $url.'&description_tags_type=pages&page_no=1'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a></a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish+ $pages->pending+ $pages->future+ $pages->private; ?>) |</li>
+        <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=1'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts('post');  echo $postss->publish+$postss->pending+$postss->future+$postss->private; ?>) |</li> 
+        <li><a href="<?php echo $url.'&description_tags_type=categories&page_no=1'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'categories'); ?>>Categories</a>(<?php $categories = get_categories(); $element_count = count($categories); echo ($element_count); ?>)</li>
     </ul>
 
     <br /><br />
@@ -347,7 +347,7 @@ if(isset($_POST['action'])) {
                   $sql = ' AND (post_title LIKE "%'.$search_value.'%")';
                 }
                 
-                $pages = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status .$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
+                $pages = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status .$sql.'ORDER BY post_date DESC LIMIT '.($page_no - 1)*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
 
                 $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status.$sql.' ORDER BY post_date DESC');       
                 
@@ -357,31 +357,31 @@ if(isset($_POST['action'])) {
                   <div class="tablenav-pages" style="line-height: 10px;">
                     <span class="pagination-links">
                       <span class="displaying-num">
-                        Displaying <?php echo $page_no * get_option( 'fv_items_per_page' ) + 1; ?> -
+                        Displaying <?php echo $page_no * get_option( 'fv_items_per_page' ); ?> -
                         <?php 
-                        if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) > $element_count )
+                        if ( ( $page_no * get_option( 'fv_items_per_page' ) ) > $element_count )
                         echo $element_count;
-                        else echo $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ); 
+                        else echo $page_no * get_option( 'fv_items_per_page' ) ; 
                         ?> of <?php echo $element_count; ?>
-			| Page : <?php echo $page_no +1 ;?>
+			| Page : <?php echo $page_no ;?>
                       </span>
                       <?php
 		      			
 			$max_page=ceil($element_count/get_option('fv_items_per_page'));
-			if($page_no>=$max_page){			   
-			   $page_no=$max_page-1;
+			if($page_no>$max_page){			   
+			   $page_no=$max_page;
 			  }
 			  
-			if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
-			   if($page_no<0){
-			      $page_no=0;
+			if ( ( $page_no * get_option( 'fv_items_per_page' ) ) < $element_count){
+			   if($page_no<1){
+			      $page_no=1;
 			   }
 			}
 		      
                       $prev_page=$page_no-1;
                       $next_page=$page_no+1;
-                      if ($page_no > 0) echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; 
-                      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count) echo '<a class="next-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$next_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&raquo;</a>';?>   
+                      if ($page_no > 1) echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; 
+                      if ( ( $page_no * get_option( 'fv_items_per_page' ) ) < $element_count) echo '<a class="next-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$next_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&raquo;</a>';?>   
 		     </span>
 		     <?php
 		     if(get_option( 'fv_items_per_page' )>= $element_count){
@@ -395,7 +395,7 @@ if(isset($_POST['action'])) {
 			      <input type="hidden" name="description_tags_type" value="<?php if($description_tags_type){echo $description_tags_type;}else{echo "pages" ;} ?>">
 			      <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
 			      Go to page:
-			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="change_page" value="<?php echo $page_no+1;?>" max="<?php echo $max_page; ?>" min="1" >
+			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="page_no" value="<?php echo $page_no;?>" max="<?php echo $max_page; ?>" min="1" >
 			      <input type="submit" value="GO">
 			      </form>
 			</span>
@@ -444,7 +444,7 @@ if(isset($_POST['action'])) {
                   $sql = ' AND (post_title LIKE "%'.$search_value.'%")';
                 }
 		
-	        $posts = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.'ORDER BY post_date DESC LIMIT '.$page_no*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
+	        $posts = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.'ORDER BY post_date DESC LIMIT '.( $page_no - 1 ) * get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
 
                 $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.' ORDER BY post_date DESC');       
                  
@@ -454,38 +454,38 @@ if(isset($_POST['action'])) {
                   <div class="tablenav-pages" style="line-height: 10px;">
                     <span class="pagination-links">
                       <span class="displaying-num">
-                        Displaying <?php echo $page_no * get_option( 'fv_items_per_page' ) + 1; ?> -
+                        Displaying <?php echo $page_no * get_option( 'fv_items_per_page' ); ?> -
                         <?php 
-                        if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) > $element_count )
+                        if ( ( $page_no * get_option( 'fv_items_per_page' ) ) > $element_count )
                         echo $element_count;
-                        else echo $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ); 
+                        else echo $page_no * get_option( 'fv_items_per_page' ); 
                         ?> of <?php echo $element_count; ?>
-			| Page : <?php echo $page_no +1 ;?>
+			| Page : <?php echo $page_no;?>
                       </span>
                       <?php 
                       
 		      			
 			$max_page=ceil($element_count/get_option('fv_items_per_page'));
-			if($page_no>=$max_page) {
-			   $page_no=$max_page-1;
+			if($page_no>$max_page) {
+			   $page_no=$max_page;
 			}
 			
 			
                       
 		      
-		      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
-			if($page_no<0){
-			  $page_no=0;
+		      if ( ( $page_no * get_option( 'fv_items_per_page' ) ) < $element_count){
+			if($page_no<1){
+			  $page_no=1;
 			  }
 		      }
 			$prev_page=$page_no-1;
                         $next_page=$page_no+1;
 			
-		      if ($page_no > 0)			
+		      if ($page_no > 1)			
 		      echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>';
 		      
 		      
-                      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count)
+                      if ( ( $page_no * get_option( 'fv_items_per_page' ) ) < $element_count)
 		      echo '<a class="next-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$next_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&raquo;</a>';
 		      ?>   
                      
@@ -503,7 +503,7 @@ if(isset($_POST['action'])) {
 			      <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
 			      <input type="hidden" name="page_no" value="<?php echo $page_no;?>">
 			      Go to page:
-			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="change_page" value="<?php echo $page_no+1;?>"  max="<?php echo $max_page; ?>" min="1">			      
+			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="page_no" value="<?php echo $page_no;?>"  max="<?php echo $max_page; ?>" min="1">			      
 			      <input type="submit" value="GO">
 			      </form>
 			</span>
@@ -574,9 +574,9 @@ if(isset($_POST['action'])) {
                 avoid_absent_page_no($element_count);
                 if (($element_count > get_option( 'fv_items_per_page' )) and (($page_no != 'all') or empty($page_no)))
                 {
-                	if($page_no > 0)
+                	if($page_no > 1)
                 	{
-                		$categories = array_splice($categories, ($page_no * get_option( 'fv_items_per_page' )));
+                		$categories = array_splice($categories, ( ( $page_no - 1 ) * get_option( 'fv_items_per_page' )));
                 	}
 
                 	$categories = array_slice($categories, 0, get_option( 'fv_items_per_page' ));
@@ -586,32 +586,32 @@ if(isset($_POST['action'])) {
                   <div class="tablenav-pages" style="line-height: 10px;">
                     <span class="pagination-links">
                       <span class="displaying-num">
-                        Displaying <?php echo $page_no * get_option( 'fv_items_per_page' ) + 1; ?> -
+                        Displaying <?php echo $page_no * get_option( 'fv_items_per_page' ); ?> -
                         <?php 
-                        if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) > $element_count )
+                        if ( ( $page_no * get_option( 'fv_items_per_page' ) ) > $element_count )
                         echo $element_count;
-                        else echo $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ); 
+                        else echo $page_no * get_option( 'fv_items_per_page' ); 
                         ?> of <?php echo $element_count; ?>
-			| Page : <?php echo $page_no +1 ;?>
+			| Page : <?php echo $page_no;?>
                       </span>
                       <?php
 		      		
 			$max_page=ceil($element_count/get_option('fv_items_per_page'));
-			if($page_no>=$max_page) {
-			   $page_no=$max_page-1;
+			if($page_no>$max_page) {
+			   $page_no=$max_page;
 			  }
                       
 		      
-		      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count){
-			if($page_no<0){
-			  $page_no=0;
+		      if ( ( $page_no * get_option( 'fv_items_per_page' ) ) < $element_count){
+			if($page_no<1){
+			  $page_no=1;
 			  }
 		      }
 		      
                       $prev_page=$page_no-1;
                       $next_page=$page_no+1;
-                      if ($page_no > 0) echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; 
-                      if ( ( $page_no * get_option( 'fv_items_per_page' ) + get_option( 'fv_items_per_page' ) ) < $element_count) echo '<a class="next-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$next_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&raquo;</a>';?>   
+                      if ($page_no > 1) echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; 
+                      if ( ( $page_no * get_option( 'fv_items_per_page' ) ) < $element_count) echo '<a class="next-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$next_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&raquo;</a>';?>   
                     </span>	        
                     <?php
 		     if(get_option( 'fv_items_per_page' )>= $element_count){
@@ -625,7 +625,7 @@ if(isset($_POST['action'])) {
 			      <input type="hidden" name="description_tags_type" value="<?php if($description_tags_type){echo $description_tags_type;}else{echo "pages" ;} ?>">
 			      <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
 			      Go to page:
-			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="change_page" value="<?php echo $page_no+1;?>" max="<?php echo $max_page;?>" min="1" >
+			      <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="page_no" value="<?php echo $page_no;?>" max="<?php echo $max_page;?>" min="1" >
 			      <input type="submit" value="GO">
 			      </form>
 			</span>
@@ -814,7 +814,7 @@ function unset_choosen_get($choosen_get){
 	}
 	
    if(empty($value)){
-      $new_URL = $new_URL.'page_no=0';
+      $new_URL = $new_URL.'page_no=1';
    }else{
       $new_URL = $new_URL.'page_no='.$value[1];
    }
