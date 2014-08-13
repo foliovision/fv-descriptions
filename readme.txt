@@ -9,13 +9,12 @@ Simple plugin which allows you to mass edit the description fields of your choic
 
 == Description ==
 
-Simple plugin which allows you to **mass edit the description fields** of your choice.
+Simple plugin which allows you to **mass edit the description fields** of your choice. In current version of the plugin it is possible to mass edit  except the description fields also titles of pages, posts and categories  and for posts it is additionally possible to edit keywords
 
 [Support](http://foliovision.com/seo-tools/wordpress/plugins/foliopress-descriptions)
 
 Supported description fields:
 
-* [FV All In One SEO](http://foliovision.com/seo-tools/wordpress/plugins/fv-all-in-one-seo-pack/)
 * All In One SEO Meta Description
 * Thesis description
 * Wordpress post excerpt
