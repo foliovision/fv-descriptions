@@ -865,6 +865,4 @@ function get_last_page_no($count){
       
 }
 
-
-
 ?>
