@@ -13,7 +13,7 @@ Changelog:
 
 08/08/14 -  Fixed select of items to be displayed in Description column
 18/07/14 -  Fixed paging, saving options, design
-17/07/14 -  Simple settings of unwanted post types
+17/07/14 -  Editing of posts and pages with statuses Published, Future, Pending or Private
 11/12/12 -  Fixed search
 04/12/12 -  Items per page in screen options
 22/11/12 -  Added mass editing of titles and keywords
