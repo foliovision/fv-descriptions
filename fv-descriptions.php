@@ -484,7 +484,7 @@ if(isset($_POST['action'])) {
                         if ( ( $page_no * get_option( 'fv_items_per_page' ) ) > $element_count )
                         echo $element_count;
                         else echo $page_no * get_option( 'fv_items_per_page' ); 
-                        ?> of of <?php
+                        ?> of <?php
 			echo $element_count.' ';
 			if($element_count>1){
 			   echo "items";
