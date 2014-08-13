@@ -362,8 +362,15 @@ if(isset($_POST['action'])) {
                         if ( ( $page_no * get_option( 'fv_items_per_page' ) ) > $element_count )
                         echo $element_count;
                         else echo $page_no * get_option( 'fv_items_per_page' ); 
-                        ?> of <?php echo $element_count; ?>
-			items</center> 
+                        ?> of <?php
+			echo $element_count.' ';
+			if($element_count>1){
+			   echo "items";
+			}else{
+			   echo "item";
+			}
+			?>			
+			</center> 
 			</span>
 		     </span>
 		     <span class="pagination-links">		   
@@ -477,8 +484,14 @@ if(isset($_POST['action'])) {
                         if ( ( $page_no * get_option( 'fv_items_per_page' ) ) > $element_count )
                         echo $element_count;
                         else echo $page_no * get_option( 'fv_items_per_page' ); 
-                        ?> of <?php echo $element_count; ?>
-			items</center>
+                        ?> of of <?php
+			echo $element_count.' ';
+			if($element_count>1){
+			   echo "items";
+			}else{
+			   echo "item";
+			}?>
+			</center>
 			</span>
 		     </span>
 		     <span class="pagination-links">		   
@@ -615,8 +628,14 @@ if(isset($_POST['action'])) {
                         if ( ( $page_no * get_option( 'fv_items_per_page' ) ) > $element_count )
                         echo $element_count;
                         else echo $page_no * get_option( 'fv_items_per_page' ); 
-                        ?> of <?php echo $element_count; ?>
-			items</center> 
+                        ?> of <?php
+			echo $element_count.' ';
+			if($element_count>1){
+			   echo "items";
+			}else{
+			   echo "item";
+			}?>
+			</center> 
 			</span>
 		     </span>
 		     <span class="pagination-links">		   
