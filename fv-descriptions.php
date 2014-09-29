@@ -398,7 +398,7 @@ if(isset($_POST['action'])) {
 		      echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; ?>
 		      <?php
 			if(get_option( 'fv_items_per_page' )>= $element_count){
-			echo '</div></div>';
+			echo '</form></div></div>';
 			}else{
 			?>
 			      <input type="hidden" name="page" value="fv_descriptions">
@@ -519,9 +519,7 @@ if(isset($_POST['action'])) {
 		      echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; ?>
 		      <?php
 			if(get_option( 'fv_items_per_page' )>= $element_count){
-			echo '</div></div>';
-			}else{
-			?>
+			echo '</form></div></div>';		?>
 			      <input type="hidden" name="page" value="fv_descriptions">
 			      <input type="hidden" name="description_tags_type" value="<?php if($description_tags_type){echo $description_tags_type;}else{echo "pages" ;} ?>">
 			      <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
@@ -663,7 +661,7 @@ if(isset($_POST['action'])) {
 		      echo '<a class="prev-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$prev_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&laquo;</a>'; ?>
 		      <?php
 			if(get_option( 'fv_items_per_page' )>= $element_count){
-			echo '</div></div>';
+			echo '</form></div></div>';
 			}else{
 			?>
 			      <input type="hidden" name="page" value="fv_descriptions">
