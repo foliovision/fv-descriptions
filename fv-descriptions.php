@@ -450,10 +450,11 @@ function manage_fv_descriptions(){
             }
             ?>
           </form>
-        </span> 
+        </span>
+  <?php } ?>
       </div>
     </div>
-<?php   }
+<?php
   
     if ($pages){ ?>
       <form name="pages-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
@@ -582,10 +583,11 @@ function manage_fv_descriptions(){
             }
             ?>
           </form>
-        </span> 
+        </span>
+  <?php } ?>
       </div>
     </div>
-<?php   }
+<?php
   
     if ($posts){ ?>
       <form name="posts-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
@@ -730,10 +732,11 @@ function manage_fv_descriptions(){
             }
             ?>
           </form>
-        </span> 
+        </span>
+  <?php } ?>
       </div>
     </div>
-<?php   }
+<?php
 
     if($categories) { ?>
         <form name="categories-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
