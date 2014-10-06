@@ -2,7 +2,7 @@
 Contributors: FolioVision
 Tags: meta description,description,post,pages,categories,all in one seo,seo,thesis,excerpt
 Requires at least: 2.7
-Tested up to: 3.9.2
+Tested up to: 4.0
 Stable tag: trunk
 
 Simple plugin which allows you to mass edit the description fields of your choice.
@@ -20,6 +20,12 @@ Supported description fields:
 * Wordpress post excerpt
 
 == Changelog ==
+
+= Version 1.3.4 =
+
+* Formatting whole code
+* Fixed bug when Screen options value is bigger than number of items
+* Improving condition showing paging form
 
 = Version 1.3.2 =
 
