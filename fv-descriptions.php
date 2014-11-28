@@ -4,13 +4,14 @@ Plugin Name: FV Descriptions
 Plugin URI: http://foliovision.com/seo-tools/wordpress/plugins/fv-descriptions/
 Description: Mass edit descriptions for every post, page or category page. Supports post excerpt, Thesis and All In One SEO meta description fields.
 Author: Foliovision
-Version: 1.3.3
+Version: 1.3.4
 Author URI: http://foliovision.com
 
 Copyright (c) 2009 Foliovision (http://foliovision.com)
 
 Changelog:
 
+03/10/14 -  Formatting whole code, fixed paging bug
 08/08/14 -  Fixed select of items to be displayed in Description column
 18/07/14 -  Fixed paging, saving options, design
 17/07/14 -  Editing of posts and pages with statuses Published, Future, Pending or Private
@@ -55,11 +56,21 @@ class FvDescriptionAdmin {
       return $strHTML;
    }
 
+    function fv_descriptions_plugin_action_links($links, $file) {
+      $plugin_file = basename(__FILE__);
+      if (basename($file) == $plugin_file) {
+        $settings_link =  '<a href="'.site_url('wp-admin/tools.php?page=fv_descriptions').'">Tools</a>';
+        array_unshift($links, $settings_link);
+      }
+      return $links;
+    }
+
 }
 
 if( is_admin() ){
    add_action( 'admin_menu', array( 'FvDescriptionAdmin', 'AddManagement' ) );
    add_filter( 'screen_settings', array( 'FvDescriptionAdmin', 'ScreenOptions' ), 10, 2 );
+   add_filter('plugin_action_links',array( 'FvDescriptionAdmin','fv_descriptions_plugin_action_links'), 10, 2);
 }
 
 function save_my_option(){
