@@ -2,7 +2,7 @@
 Contributors: FolioVision
 Tags: meta description,description,post,pages,categories,all in one seo,seo,thesis,excerpt
 Requires at least: 2.7
-Tested up to: 4.0
+Tested up to: 4.1
 Stable tag: trunk
 
 Simple plugin which allows you to mass edit the description fields of your choice.
