@@ -449,7 +449,7 @@ function manage_fv_descriptions(){
             <input type="hidden" name="page_no" value="<?php echo $page_no;?>">
             Go to page:
             <input type="number" style="width: <?php echo get_style_width_listing_input($max_page).'px' ; ?>;" name="page_no" value="<?php echo $page_no;?>"  max="<?php echo $max_page; ?>" min="1">            
-            <input type="submit" value="GO">
+            <input type="submit" value="GO" class="button" />
               
             <?php if ( ( $page_no * get_option( 'fv_items_per_page' ) ) < $element_count){
               echo '<a class="next-page" href="'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'].'&page_no='.$next_page.'&description_tags_type='.$description_tags_type.$search_query_string.'">&raquo;</a>';
@@ -464,7 +464,7 @@ function manage_fv_descriptions(){
   
     if ($pages){ ?>
       <form name="pages-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
-        <div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div><div class="clearer"></div>
+        <div class="left"><input type="submit" value="Press before leaving this page to save your changes" class="button button-primary" /> </div><div class="clearer"></div>
         <input type="hidden" name="action" value="pages" />
         <table class="widefat">
           <thead>
@@ -488,7 +488,7 @@ function manage_fv_descriptions(){
           }
           
           wp_nonce_field('fv_'.fv_get_field_type().fv_get_tag_type(),'hash');
-          echo '</tbody></table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" /></div></form>';
+          echo '</tbody></table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" class="button button-primary" /></div></form>';
           
     }else{
       
@@ -597,7 +597,7 @@ function manage_fv_descriptions(){
   
     if ($posts){ ?>
       <form name="posts-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
-      <div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div><div class="clearer"></div>
+      <div class="left"><input type="submit" value="Press before leaving this page to save your changes" class="button button-primary" /> </div><div class="clearer"></div>
       <input type="hidden" name="action" value="posts" />
       <table class="widefat">
         <thead>
@@ -612,7 +612,7 @@ function manage_fv_descriptions(){
       <?php
       manage_fv_descriptions_recursive('posts',0,0,$posts,true,$fieldname);
       wp_nonce_field('fv_'.fv_get_field_type().fv_get_tag_type(),'hash');
-      echo '</table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div></form>';
+      echo '</table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" class="button button-primary" /> </div></form>';
     }else{
       echo '<p><b>No posts found!</b></p>';
     }
@@ -746,7 +746,7 @@ function manage_fv_descriptions(){
 
     if($categories) { ?>
         <form name="categories-form" action="<?php echo $_SERVER['REQUEST_URI'].'&page_no='.$page_no; ?>" method="post">
-        <div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div><div class="clearer"></div>
+        <div class="left"><input type="submit" value="Press before leaving this page to save your changes" class="button button-primary" /> </div><div class="clearer"></div>
         <input type="hidden" name="action" value="categories" />
         <table class="widefat">
           <thead>
@@ -785,7 +785,7 @@ function manage_fv_descriptions(){
     }
     
     wp_nonce_field('fv_'.fv_get_field_type().fv_get_tag_type(),'hash');
-    echo '</table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" /> </div></form>';
+    echo '</table><div class="left"><input type="submit" value="Press before leaving this page to save your changes" class="button button-primary" /> </div></form>';
     } else { //End of check for categories
       print "<b>No Categories found!</b>";
     }
