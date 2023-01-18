@@ -272,6 +272,27 @@ function manage_fv_descriptions(){
   
   $description_field_type = !empty($_REQUEST['description_field_type']) ? $_GET['description_field_type'] : 'description';
 
+  ?>
+  <style>
+  <?php if( $description_field_type == 'all3atonce' ) : ?>
+    table tr td { width: 33% }
+  <?php elseif( $description_field_type == 'bothatonce' ) : ?>
+    table tr td { width: 50% }    
+  <?php else : ?>
+    table tr td { width: 20% }
+  <?php endif; ?>
+  table tr td input { width: 100% }
+  table tr td:nth-of-type(1) { width: 5em }
+  <?php if( $description_field_type == 'title' ) : ?>
+    table tr td:nth-of-type(2) { width: 60% }
+  <?php elseif( $description_field_type == 'description' ) : ?>
+    table tr td:nth-of-type(3) { width: 60% }
+  <?php elseif( $description_field_type == 'keywords' ) : ?>
+    table tr td:nth-of-type(4) { width: 60% }
+  <?php endif; ?>
+  </style>
+  <?php
+?>
 
 <div class="wrap">
   <div style="position: absolute; top: 30px; right: 10px;">
@@ -601,7 +622,7 @@ function manage_fv_descriptions(){
             <th scope="col" width="70">ID</th>
             <th scope="col" width="250">Title</th>
             <th scope="col" width="250">Description</th>                        
-            <th scope="col">Keywords</th>
+            <th scope="col">Tags</th>
             </tr>
         </thead>
         <tbody>
@@ -793,7 +814,7 @@ function manage_fv_descriptions(){
 <?php
 }
 
-function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $elements = 0, $hierarchical = true, $fieldname){
+function manage_fv_descriptions_recursive($type, $parent, $level, $elements, $hierarchical, $fieldname){
   
   if (! $elements){
     
@@ -829,7 +850,7 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
     <?php endif; ?>
     <?php else : ?>
     <?php if(fv_get_field_type() == 'description' or fv_get_field_type() == 'all3atonce' or fv_get_field_type() == 'bothatonce') : ?>
-    <td><input type="text" title="<?php echo htmlspecialchars( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?>" name="tagdescription_<?php echo $element->ID ?>" id="tagdescription_<?php echo $element->ID ?>" value="<?php echo htmlspecialchars( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?>" size="80" /></td>
+    <td><input type="text" title="<?php echo htmlspecialchars( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?>" name="tagdescription_<?php echo $element->ID ?>" id="tagdescription_<?php echo $element->ID ?>" value="<?php echo htmlspecialchars( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?>" /></td>
     <?php else : ?>
     <td><?php echo htmlspecialchars( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?></td>                  
     <?php endif; ?>
@@ -948,5 +969,3 @@ function get_last_page_no($count){
   
   return $last_page;
 }
-
-?>
