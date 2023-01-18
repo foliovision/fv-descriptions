@@ -758,12 +758,7 @@ function manage_fv_descriptions(){
     foreach ($categories as $category){
       
       $category_value = $category->category_description;
-      
-      if (get_magic_quotes_runtime()){
-        
-        $category_value = stripslashes($category_value);
-        
-        }
+
 ?>
               <tr>
                 <td><a href="<?php echo get_category_link($category->cat_ID) ?>"><?php echo $category->cat_ID ?></a></td>
@@ -816,11 +811,6 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
 
     $pad = str_repeat( '&#8212; ', $level );
     $element_value = $element_custom->post_excerpt;
-    if (get_magic_quotes_runtime()){
-      
-      $element_value = stripslashes($element_value);
-      
-    }
 ?>
   <tr>
     <td><a href="<?php echo get_permalink($element->ID) ?>"><?php echo $element->ID ?></a></td>
