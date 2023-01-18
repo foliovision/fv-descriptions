@@ -78,24 +78,12 @@ new FvDescriptionAdmin;
 
 function fv_get_field_type() 
 {
-  $type = $_REQUEST["description_field_type"];
-  
-  if(!isset($type)) {
-    $type = 'description';
-  }
-  
-  return $type;
+  return !empty($_REQUEST['description_field_type']) ? $_REQUEST['description_field_type'] : 'description';
 }
 
 function fv_get_tag_type() 
 {
-  $type = $_REQUEST["description_tags_type"];
-  
-  if(!isset($type)) {
-    $type = 'pages';
-  }
-  
-  return $type;
+  return !empty($_REQUEST['description_tags_type']) ? $_REQUEST['description_tags_type'] : 'pages';
 }
 
 
@@ -262,28 +250,18 @@ function manage_fv_descriptions(){
     
   }
   
-  $search_value = (isset($_POST['search_value']))
-    ? $_POST['search_value']
-    : $_GET['search_value'];
- 
-  global $description_tags_type;
-  $description_tags_type = $_GET['description_tags_type'];
-  $page_no = $_GET['page_no'];
-  
-  /*Here($aUnwanted_post_status) you can set up, which post_status you won't have in your search.**/
-  $aUnwanted_post_status=array('draft','trash','auto-draft','inherit');
-  $sSql_unwanted_post_status='';
-  
-  for($i=0;$i<count($aUnwanted_post_status);$i++){
-    
-    if($i!=count($aUnwanted_post_status)-1){
-      $sSql_unwanted_post_status.='post_status !="'.$aUnwanted_post_status[$i].'" AND ';
-    }else{
-      $sSql_unwanted_post_status.='post_status !="'.$aUnwanted_post_status[$i].'" ';
-    }
-    
+  $search_value = false;
+  if( !empty($_POST['search_value']) ) {
+    $search_value = $_POST['search_value'];
   }
-  
+  if( !empty($_GET['search_value']) ) {
+    $search_value = $_GET['search_value'];
+  }
+
+  global $description_tags_type;
+  $description_tags_type = !empty($_GET['description_tags_type']) ? $_GET['description_tags_type'] : false;
+  $page_no = !empty($_GET['page_no']) ? $_GET['page_no'] : 1;
+
   $element_count = 0;
   
   $_SERVER['QUERY_STRING'] = preg_replace('/&description_tags_type=[^&]+/','',$_SERVER['QUERY_STRING']);
@@ -292,11 +270,8 @@ function manage_fv_descriptions(){
   $_SERVER['QUERY_STRING'] = preg_replace('/&search_value=[^&]*/','',$_SERVER['QUERY_STRING']);
   $search_query_string = '&search_value='.$search_value;
   
-  if(!isset($page_no)){
-    $page_no = 1;
-  }
-  
-?>
+  $description_field_type = !empty($_REQUEST['description_field_type']) ? $_GET['description_field_type'] : 'description';
+
 
 <div class="wrap">
   <div style="position: absolute; top: 30px; right: 10px;">
@@ -310,9 +285,24 @@ function manage_fv_descriptions(){
   <ul class="subsubsub">
     <li>Display:</li>
     <?php $url = preg_replace('/&description_tags_type=.*?$/','',$_SERVER['REQUEST_URI']); ?>
-    <li><a href="<?php echo $url.'&description_tags_type=pages&page_no=1'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'pages'); if ($_REQUEST['description_tags_type']=='') echo 'class=current'; ?>>Pages</a></a>(<?php  $pages = wp_count_posts('page'); echo $pages->publish+ $pages->pending+ $pages->future+ $pages->private; ?>) |</li>
-    <li><a href="<?php echo $url.'&description_tags_type=posts&page_no=1'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'posts'); ?>>Posts</a>(<?php $postss = wp_count_posts('post');  echo $postss->publish+$postss->pending+$postss->future+$postss->private; ?>) |</li>
-    <li><a href="<?php echo $url.'&description_tags_type=categories&page_no=1'; ?>" <?php echo fv_is_current($_REQUEST['description_tags_type'],'categories'); ?>>Categories</a>(<?php $categories = get_categories(); $element_count = count($categories); echo ($element_count); ?>)</li>
+    <li>
+      <a href="<?php echo $url.'&description_tags_type=pages&page_no=1'; ?>"
+        <?php echo fv_descriptions_is_current($description_tags_type,'pages'); echo fv_descriptions_is_current( $description_tags_type, false ); ?>
+      >Pages</a>
+      (<?php  $pages = wp_count_posts('page'); echo $pages->publish+ $pages->pending+ $pages->future+ $pages->private; ?>) |
+    </li>
+    <li>
+      <a href="<?php echo $url.'&description_tags_type=posts&page_no=1'; ?>"
+        <?php echo fv_descriptions_is_current($description_tags_type,'posts'); ?>
+      >Posts</a>
+      (<?php $postss = wp_count_posts('post');  echo $postss->publish+$postss->pending+$postss->future+$postss->private; ?>) |
+    </li>
+    <li>
+      <a href="<?php echo $url.'&description_tags_type=categories&page_no=1'; ?>"
+        <?php echo fv_descriptions_is_current($description_tags_type,'categories'); ?>
+      >Categories</a>
+      (<?php $categories = get_categories(); $element_count = count($categories); echo ($element_count); ?>)
+    </li>
   </ul>
   
   <br /><br />
@@ -320,14 +310,34 @@ function manage_fv_descriptions(){
   <ul class="subsubsub" style="position: absolute; left: 0px;">
     <li>Change:</li>
     <?php $url = preg_replace('/&description_field_type=\w+/','',$_SERVER['REQUEST_URI']) ?>
-    <li><a href="<?php echo $url.'&description_field_type=description&page_no='.$page_no; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'description'); if ($_REQUEST['description_field_type']=='') echo 'class=current'; ?>>Description</a> | </li>
-    <li><a href="<?php echo $url.'&description_field_type=title&page_no='.$page_no; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'title'); ?>>Title</a> | </li>
+    <li>
+      <a href="<?php echo $url.'&description_field_type=description&page_no='.$page_no; ?>"
+        <?php echo fv_descriptions_is_current( $description_field_type,'description');  ?>
+      >Description</a> |
+    </li>
+    <li>
+      <a href="<?php echo $url.'&description_field_type=title&page_no='.$page_no; ?>"
+        <?php echo fv_descriptions_is_current( $description_field_type,'title'); ?>
+      >Title</a> |
+    </li>
     <?php if ($description_tags_type != 'posts') { ?>
-    <li><a href="<?php echo $url.'&description_field_type=bothatonce&page_no='.$page_no; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'bothatonce'); ?>>Both at once</a></li> 
+    <li>
+      <a href="<?php echo $url.'&description_field_type=bothatonce&page_no='.$page_no; ?>"
+        <?php echo fv_descriptions_is_current( $description_field_type,'bothatonce'); ?>
+      >Both at once</a>
+    </li> 
     <?php } ?>
     <?php if ($description_tags_type == 'posts') { ?>
-    <li><a href="<?php echo $url.'&description_field_type=keywords&page_no='.$page_no; ?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'keywords'); ?>>Keywords</a> | </li>
-    <li><a href="<?php echo $url.'&description_field_type=all3atonce&page_no='.$page_no;?>" <?php echo fv_is_current($_REQUEST['description_field_type'],'all3atonce'); ?>>All 3 at once</a></li> 
+    <li>
+      <a href="<?php echo $url.'&description_field_type=keywords&page_no='.$page_no; ?>"
+        <?php echo fv_descriptions_is_current( $description_field_type,'keywords'); ?>
+      >Tags</a> |
+    </li>
+    <li>
+      <a href="<?php echo $url.'&description_field_type=all3atonce&page_no='.$page_no;?>"
+        <?php echo fv_descriptions_is_current( $description_field_type,'all3atonce'); ?>
+      >All 3 at once</a>
+    </li> 
     <?php } ?>
   </ul>
   
@@ -340,15 +350,15 @@ function manage_fv_descriptions(){
     </form>
   </div>
   
-  <?php if($_GET['description_tags_type'] !== 'categories') { ?>
+  <?php if( $description_field_type !== 'categories') { ?>
   <div class="tablenav">
-    <div class="alignleft actions">
+    <div class="actions">
       Select field to display in Description column:
       <form name="selectform" method="get">
         <input type="hidden" name="page" value="fv_descriptions">
         <input type="hidden" name="description_tags_type" value="<?php if($description_tags_type){echo $description_tags_type;}else{echo "pages" ;} ?>">
         <input type="hidden" name="page_no" value="<?php echo $page_no;?>">
-        <input type="hidden" name="description_field_type" value="<?php echo fv_get_field_type();?>">
+        <input type="hidden" name="description_field_type" value="<?php echo $description_field_type; ?>">
         <select name="selectfield">
           <option value="excerpt"<?php if($fieldname=="excerpt") echo ' selected';  ?>>Excerpt</option>
           <option value="thesis_description"<?php if($fieldname=="thesis_description") echo ' selected'; ?>>thesis_description</option>
@@ -916,16 +926,10 @@ function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
   );
 }
 
-//returns class=current if the strings exist and match else nothing.
-//Used down on the top nav to select which page is selected.
-function fv_is_current($aRequestVar,$aType) {
-  if(!isset($aRequestVar) || empty($aRequestVar)) {
-    return;
-    }
-  //do the match
+function fv_descriptions_is_current($aRequestVar,$aType) {
   if($aRequestVar == $aType) {
     return 'class=current';
-    }
+  }
 }
 
 function get_style_width_listing_input($max_page){
