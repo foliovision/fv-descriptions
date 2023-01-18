@@ -26,50 +26,55 @@ Changelog:
 
 class FvDescriptionAdmin {
 
-   private static $idManagementPage = null;
+  var $idManagementPage = null;
 
-   public static function AddManagement(){
-      self::$idManagementPage = add_management_page(
-         'FV Descriptions',
-         'FV Descriptions',
-         'edit_pages',
-         'fv_descriptions',
-         'manage_fv_descriptions'
-      );
-      add_option( 'fv_items_per_page', '10' );
-   }
-   
-   public function ScreenOptions( $strHTML, $objScreen ){
-      if( $objScreen->id == self::$idManagementPage ){
-         $strHTML .= 
-            '<form name="my_option_form" method="post">
-               <br />
-               &nbsp;Items per page
-               <input type="text" class="screen-per-page" value="'.get_option( 'fv_items_per_page' ).'" name="fv-items-per-page" />
-               <input type="submit" class="button" value="Apply">
-               <br />
-               <br />
-         </form> ';
-                   
-      }
+  function __construct() {
+    if( is_admin() ){
+      add_action( 'admin_menu', array( $this, 'AddManagement' ) );
+      add_filter( 'screen_settings', array( $this, 'ScreenOptions' ), 10, 2 );
+    }
 
-      return $strHTML;
-   }
-
-}
-
-if( is_admin() ){
-   add_action( 'admin_menu', array( 'FvDescriptionAdmin', 'AddManagement' ) );
-   add_filter( 'screen_settings', array( 'FvDescriptionAdmin', 'ScreenOptions' ), 10, 2 );
-}
-
-function save_my_option(){
-  if( isset( $_POST['fv-items-per-page'] ) ){
-      update_option( 'fv_items_per_page', $_POST['fv-items-per-page'] );
+    add_action('admin_init', array( $this, 'save_my_option' ) );
   }
+
+  function AddManagement() {
+    $this->idManagementPage = add_management_page(
+      'FV Descriptions',
+      'FV Descriptions',
+      'edit_pages',
+      'fv_descriptions',
+      'manage_fv_descriptions'
+    );
+    add_option( 'fv_items_per_page', '10' );
+  }
+
+  function save_my_option(){
+    if( isset( $_POST['fv-items-per-page'] ) ){
+        update_option( 'fv_items_per_page', $_POST['fv-items-per-page'] );
+    }
+  }
+
+  function ScreenOptions( $strHTML, $objScreen ) {
+    if( $objScreen->id == $this->idManagementPage ){
+      $strHTML .= 
+        '<form name="my_option_form" method="post">
+        <br />
+        &nbsp;Items per page
+        <input type="text" class="screen-per-page" value="'.get_option( 'fv_items_per_page' ).'" name="fv-items-per-page" />
+        <input type="submit" class="button" value="Apply">
+        <br />
+        <br />
+        </form> ';
+
+    }
+
+    return $strHTML;
+  }
+
 }
- 
-add_action('admin_init', 'save_my_option');
+
+new FvDescriptionAdmin;
+
 
 function fv_get_field_type() 
 {
