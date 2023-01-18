@@ -364,16 +364,9 @@ function manage_fv_descriptions(){
   <?php
   
   if((empty($description_tags_type)) or ($description_tags_type == 'pages')){
-    
-    if (!empty($search_value)) {
-      
-      $sql = ' AND (post_title LIKE "%'.$search_value.'%")';
-      
-    }
-    
-    $pages = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status .$sql.'ORDER BY post_date DESC LIMIT '.($page_no - 1)*get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
-    $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "page" AND '.$sSql_unwanted_post_status.$sql.' ORDER BY post_date DESC');
-    
+
+    list( $pages, $element_count ) = fv_descriptions_get_data( 'page', $page_no, $search_value );
+
       if(isset($_POST['fv-items-per-page'])){?>
         <form name="hidden_form">
           <input type="hidden" name="page" value="fv_descriptions">
@@ -497,16 +490,9 @@ function manage_fv_descriptions(){
     }
   
   }elseif ($description_tags_type == 'posts'){
-    
-    if (!empty($search_value)) {
-      
-      $sql = ' AND (post_title LIKE "%'.$search_value.'%")';
-      
-    }
-    
-    $posts = $wpdb->get_results('SELECT * FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.'ORDER BY post_date DESC LIMIT '.( $page_no - 1 ) * get_option( 'fv_items_per_page' ).','.get_option( 'fv_items_per_page' ));
-    $element_count = $wpdb->get_var('SELECT COUNT(ID) FROM '.$wpdb->posts.' WHERE post_type = "post" AND '.$sSql_unwanted_post_status.$sql.' ORDER BY post_date DESC');
-    
+
+    list( $posts, $element_count ) = fv_descriptions_get_data( 'post', $page_no, $search_value );
+
       if(isset($_POST['fv-items-per-page'])){?>
         <form name="hidden_form">
           <input type="hidden" name="page" value="fv_descriptions">
@@ -889,6 +875,45 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
       
     }
   }
+}
+
+function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
+  global $wpdb;
+
+  $posts_sql = $wpdb->prepare(
+    "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') ORDER BY post_date DESC LIMIT %d, %d",
+    $post_type,
+    ($page_no - 1) * get_option( 'fv_items_per_page' ),
+    get_option( 'fv_items_per_page' )
+  );
+
+  if( $search ) {
+    $posts_sql = $wpdb->prepare(
+      "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s ORDER BY post_date DESC LIMIT %d, %d",
+      $post_type,
+      '%'.$wpdb->esc_like( $search ).'%',
+      ($page_no - 1) * get_option( 'fv_items_per_page' ),
+      get_option( 'fv_items_per_page' )
+    );
+  }
+
+  $count_sql = $wpdb->prepare(
+    "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') ORDER BY post_date DESC",
+    $post_type
+  );
+
+  if( $search ) {
+    $count_sql = $wpdb->prepare(
+      "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s ORDER BY post_date DESC",
+      $post_type,
+      '%'.$wpdb->esc_like( $search ).'%'
+    );
+  }
+
+  return array(
+    $wpdb->get_results( $posts_sql ),
+    $wpdb->get_var( $count_sql )
+  );
 }
 
 //returns class=current if the strings exist and match else nothing.
