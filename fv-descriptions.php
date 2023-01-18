@@ -815,13 +815,15 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
   <tr>
     <td><a href="<?php echo get_permalink($element->ID) ?>"><?php echo $element->ID ?></a></td>
     <?php if(fv_get_field_type() == 'title' or fv_get_field_type() == 'all3atonce' or fv_get_field_type() == 'bothatonce') : ?>
-    <td><input type="text"  title="<?php echo htmlspecialchars( $element->post_description ); ?>" name="tagtitle_<?php echo $element->ID ?>" id="tagtitle_<?php echo $element->ID ?>" value="<?php echo $pad.$element->post_title ?>"></td>
+    <td>
+      <input type="text" name="tagtitle_<?php echo $element->ID ?>" id="tagtitle_<?php echo $element->ID ?>" value="<?php echo $element->post_title ?>">
+    </td>
     <?php else : ?>
     <td><?php echo $pad.$element->post_title ?></td>
     <?php endif; ?>
     <?php if($fieldname=='excerpt') : ?>
     <?php if(fv_get_field_type() == 'description' or fv_get_field_type() == 'all3atonce' or fv_get_field_type() == 'bothatonce') : ?>
-    <td><input type="text" title="<?php echo htmlspecialchars( $element->post_description ); ?>" name="tagdescription_<?php echo $element->ID ?>" id="tagdescription_<?php echo $element->ID ?>" value="<?php echo htmlspecialchars ($element_value); ?>" size="80" /></td>
+    <td><input type="text" name="tagdescription_<?php echo $element->ID ?>" id="tagdescription_<?php echo $element->ID ?>" value="<?php echo htmlspecialchars ($element_value); ?>" /></td>
     <?php else : ?>
     <td><?php echo htmlspecialchars ($element_value); ?></td>
     <?php endif; ?>
@@ -834,38 +836,40 @@ function manage_fv_descriptions_recursive($type, $parent = 0, $level = 0, $eleme
     <?php endif; ?>
     <?php global $description_tags_type;
     if ($description_tags_type == 'posts') { ?>
-    <?php if(fv_get_field_type() == 'keywords' or fv_get_field_type() == 'all3atonce') : ?>
-    <td><input type="text" <?php if(fv_get_field_type() == 'all3atonce') echo 'size="20"'; ?> title="<?php echo htmlspecialchars( $element->post_description ); ?>" name="tagkeywords_<?php echo $element->ID ?>" id="tagkeywords_<?php echo $element->ID ?>"
-        value="<?php
-        $keywords=get_the_tags($element->ID);
-        for($i=0;$i<count($keywords);$i++){
-          
-          if($i===count($keywords)-1){
-            echo $keywords[$i]->name;
-          }else{
-            echo $keywords[$i]->name.',';  
-          }
-          
-        }
-        ?>">
-    </td>
-    <?php else : ?>
-    <td>
-      <?php
-        $keywords=get_the_tags($element->ID);
-        
-        for($i=0;$i<count($keywords);$i++){
-          
-          if($i===count($keywords)-1){
-            echo $keywords[$i]->name;
-          }else{
-            echo $keywords[$i]->name.',';
-          }
-          
-        }
-      ?>
-    </td>
-    <?php endif; ?>
+      <?php if(fv_get_field_type() == 'keywords' or fv_get_field_type() == 'all3atonce') : ?>
+        <td><input type="text" <?php if(fv_get_field_type() == 'all3atonce') echo 'size="20"'; ?> name="tagkeywords_<?php echo $element->ID ?>" id="tagkeywords_<?php echo $element->ID ?>"
+            value="<?php
+            $keywords=get_the_tags($element->ID);
+            if( is_array($keywords) ) {
+              for($i=0;$i<count($keywords);$i++){
+                if($i===count($keywords)-1){
+                  echo $keywords[$i]->name;
+                }else{
+                  echo $keywords[$i]->name.',';
+                }
+                
+              }
+            }
+            ?>">
+        </td>
+      <?php else : ?>
+        <td>
+          <?php
+            $keywords=get_the_tags($element->ID);
+            if( is_array($keywords) ) {
+              for($i=0;$i<count($keywords);$i++){
+                
+                if($i===count($keywords)-1){
+                  echo $keywords[$i]->name;
+                }else{
+                  echo $keywords[$i]->name.',';
+                }
+                
+              }
+            }
+          ?>
+        </td>
+      <?php endif; ?>
     <?php } ?>
     <?php
     
