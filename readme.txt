@@ -2,7 +2,7 @@
 Contributors: FolioVision
 Tags: meta description,description,post,pages,categories,all in one seo,seo,thesis,excerpt
 Requires at least: 2.7
-Tested up to: 6.1
+Tested up to: 6.3
 Stable tag: trunk
 
 Simple plugin which allows you to mass edit the description fields of your choice.
@@ -90,3 +90,15 @@ manually.
 = Will FV Descriptions actually put the edited descriptions into the header? =
 
 No, it's just an editor for the descriptions. Use [FV All In One SEO](http://foliovision.com/seo-tools/wordpress/plugins/fv-all-in-one-seo-pack/) for the SEO optimization of your site.
+
+== Testing ==
+
+1. Go to Tools -> FV Descriptions
+
+1.1. Select the post type you want to edit
+
+1.2. Fill your description in the input field
+
+1.3. Click on the "Save" button
+
+1.4. Check the description in the post/page/category
