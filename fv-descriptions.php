@@ -236,10 +236,6 @@ function manage_fv_descriptions(){
         
         echo '<div class="updated"><p>The custom Category description / title have been saved.</p></div>';
         
-      }elseif (isset($_POST['search_value'])){
-        
-        $search_value = esc_sql($_POST['search_value']);
-        
       }
       
     }else{
@@ -250,7 +246,6 @@ function manage_fv_descriptions(){
     
   }
   
-  $search_value = false;
   if( !empty($_POST['search_value']) ) {
     $search_value = $_POST['search_value'];
   }
@@ -366,7 +361,7 @@ function manage_fv_descriptions(){
   
   <div style="text-align: right;">
     <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
-      <input type="text" name="search_value" value="<?php if (isset($search_value)) echo $search_value; ?>" size="17" />
+      <input type="text" name="search_value" value="<?php echo esc_attr( $search_value ); ?>" size="17" />
       <input type="submit" value="Search" class="button" />
     </form>
   </div>
