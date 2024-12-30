@@ -4,7 +4,7 @@ Plugin Name: FV Descriptions
 Plugin URI: http://foliovision.com/seo-tools/wordpress/plugins/fv-descriptions/
 Description: Mass edit descriptions for every post, page or category page. Supports post excerpt, Thesis and All In One SEO meta description fields.
 Author: Foliovision
-Version: 1.4
+Version: 1.5
 Author URI: http://foliovision.com
 License: GPL-3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.txt

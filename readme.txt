@@ -23,6 +23,11 @@ Supported description fields:
 
 == Changelog ==
 
+= Version 1.5 - 2024/12/30 =
+
+* Security fixes
+* Tested up to: WordPress 6.7
+
 = Version 1.4 - 2023/01/18 =
 
 * Display issues fixed
