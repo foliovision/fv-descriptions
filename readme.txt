@@ -1,6 +1,6 @@
 === FV Descriptions ===
 Contributors: FolioVision
-Tags: meta description,description,post,pages,categories,all in one seo,seo,thesis,excerpt
+Tags: meta description,description,fv simpler seo,all in one seo,seo
 Requires at least: 2.7
 Tested up to: 6.3
 Stable tag: trunk
