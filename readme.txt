@@ -2,7 +2,7 @@
 Contributors: FolioVision
 Tags: meta description,description,fv simpler seo,all in one seo,seo
 Requires at least: 2.7
-Tested up to: 6.3
+Tested up to: 6.7
 Stable tag: trunk
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
