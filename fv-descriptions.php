@@ -6,21 +6,8 @@ Description: Mass edit descriptions for every post, page or category page. Suppo
 Author: Foliovision
 Version: 1.4
 Author URI: http://foliovision.com
-
-Copyright (c) 2009 Foliovision (http://foliovision.com)
-
-Changelog:
-
-03/10/14 -  Formatting whole code, fixed paging bug
-08/08/14 -  Fixed select of items to be displayed in Description column
-18/07/14 -  Fixed paging, saving options, design
-17/07/14 -  Editing of posts and pages with statuses Published, Future, Pending or Private
-11/12/12 -  Fixed search
-04/12/12 -  Items per page in screen options
-22/11/12 -  Added mass editing of titles and keywords
-20/10/10 -  Bug fix for categories
-29/10/09 -  Bug fixes
-31/03/09 -  Fixed to work with WP 2.7
+License: GPL-3.0
+License URI: http://www.gnu.org/licenses/gpl-3.0.txt
 */
 
 

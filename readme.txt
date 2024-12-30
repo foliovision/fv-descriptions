@@ -4,6 +4,8 @@ Tags: meta description,description,post,pages,categories,all in one seo,seo,thes
 Requires at least: 2.7
 Tested up to: 6.3
 Stable tag: trunk
+License: GPLv3 or later
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 Simple plugin which allows you to mass edit the description fields of your choice.
 
