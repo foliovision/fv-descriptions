@@ -280,7 +280,7 @@ function manage_fv_descriptions(){
 
 <div class="wrap">
   <div style="position: absolute; top: 30px; right: 10px;">
-    <a href="http://foliovision.com/seo-tools/wordpress/plugins/foliopress-descriptions" target="_blank" title="Documentation"><img alt="visit foliovision" src="http://foliovision.com/shared/fv-logo.png" /></a>
+    <a href="https://foliovision.com/wordpress/plugins/foliopress-descriptions" target="_blank" title="Documentation"><img alt="visit foliovision" src="<?php echo plugins_url( 'fv-logo.png', __FILE__ ); ?>" /></a>
   </div>
   <div>
     <div id="icon-tools" class="icon32"><br /></div>
