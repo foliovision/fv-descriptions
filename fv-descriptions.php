@@ -410,6 +410,13 @@ function manage_fv_descriptions(){
         </select>
 
         <input type="submit" value="Apply" class="button-secondary action" />
+
+        <?php if ( ! empty( $_GET['start-date'] ) || ! empty( $_GET['end-date'] ) ) : ?>
+          <label style="margin-left: 15px;">
+            Showing posts from <?php echo esc_html( $_GET['start-date'] ); ?> to <?php echo esc_html( $_GET['end-date'] ); ?>
+            <a href="<?php echo esc_url( add_query_arg( array( 'start-date' => '', 'end-date' => '' ) ) ); ?>" style="text-decoration: none;"><span class="dashicons dashicons-no" style="margin-top: 4px"></span></a>
+          </label>
+        <?php endif; ?>
       </form>
     </div>
   <?php } ?>
@@ -638,30 +645,39 @@ function manage_fv_descriptions_recursive($type, $parent, $level, $elements, $hi
 function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
   global $wpdb;
 
+  $per_page = get_option( 'fv_items_per_page' );
+
   $author_filter     = isset( $_GET['author'] ) ? intval( $_GET['author'] ) : '';
   $author_where = '';
   if (!empty($author_filter)) {
     $author_where = $wpdb->prepare( " AND post_author = %d", $author_filter );
   }
 
+  $start_date_filter = ! empty( $_GET['start-date'] ) ? sanitize_text_field( $_GET['start-date'] ) . ' 00:00:00' : '';
+  $end_date_filter   = ! empty( $_GET['end-date'] ) ? sanitize_text_field( $_GET['end-date'] ) . ' 23:59:59' : '';
+  $date_where = '';
+  if ( ! empty( $start_date_filter ) && ! empty( $end_date_filter ) ) {
+    $date_where = $wpdb->prepare( " AND post_date BETWEEN %s AND %s", $start_date_filter, $end_date_filter );
+    $per_page   = 1000000;
+  }
 
   if( $search ) {
     $posts = $wpdb->get_results(
       $wpdb->prepare(
-        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s" . $author_where . " ORDER BY post_date DESC LIMIT %d, %d",
+        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s" . $author_where . $date_where . " ORDER BY post_date DESC LIMIT %d, %d",
         $post_type,
         '%'.$wpdb->esc_like( $search ).'%',
-        ($page_no - 1) * get_option( 'fv_items_per_page' ),
-        get_option( 'fv_items_per_page' )
+        ($page_no - 1) * $per_page,
+        $per_page
       )
     );
   } else {
     $posts = $wpdb->get_results(
       $wpdb->prepare(
-        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit')" . $author_where . " ORDER BY post_date DESC LIMIT %d, %d",
+        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit')" . $author_where . $date_where . " ORDER BY post_date DESC LIMIT %d, %d",
         $post_type,
-        ($page_no - 1) * get_option( 'fv_items_per_page' ),
-        get_option( 'fv_items_per_page' )
+        ($page_no - 1) * $per_page,
+        $per_page
       )
     );
   }
@@ -669,7 +685,7 @@ function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
   if( $search ) {
     $count = $wpdb->get_var(
       $wpdb->prepare(
-        "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s" . $author_where . " ORDER BY post_date DESC",
+        "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s" . $author_where . $date_where . " ORDER BY post_date DESC",
         $post_type,
         '%'.$wpdb->esc_like( $search ).'%'
       )
@@ -678,7 +694,7 @@ function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
   } else {
     $count = $wpdb->get_var(
       $wpdb->prepare(
-        "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit')" . $author_where . " ORDER BY post_date DESC",
+        "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit')" . $author_where . $date_where . " ORDER BY post_date DESC",
         $post_type
       )
     );
