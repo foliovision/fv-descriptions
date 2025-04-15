@@ -396,6 +396,19 @@ function manage_fv_descriptions(){
           <option value="thesis_description"<?php if($fieldname=="thesis_description") echo ' selected'; ?>>thesis_description</option>
           <option value="_aioseop_description"<?php if($fieldname=="_aioseop_description") echo ' selected'; ?>>All In One SEO Meta Description</option>
         </select>
+        
+        <label for="author" style="margin-left: 15px;">Filter by Author:</label>
+        <select id="author" name="author">
+          <option value="">All Authors</option>
+          <?php
+          $authors = get_users(array('role__in' => array('administrator', 'editor', 'author')));
+          $current_author = isset($_GET['author']) ? intval($_GET['author']) : '';
+          foreach($authors as $author) {
+            echo '<option value="' . esc_attr($author->ID) . '"' . selected($current_author, $author->ID, false) . '>' . esc_html($author->display_name) . '</option>';
+          }
+          ?>
+        </select>
+
         <input type="submit" value="Apply" class="button-secondary action" />
       </form>
     </div>
@@ -625,10 +638,17 @@ function manage_fv_descriptions_recursive($type, $parent, $level, $elements, $hi
 function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
   global $wpdb;
 
+  $author_filter     = isset( $_GET['author'] ) ? intval( $_GET['author'] ) : '';
+  $author_where = '';
+  if (!empty($author_filter)) {
+    $author_where = $wpdb->prepare( " AND post_author = %d", $author_filter );
+  }
+
+
   if( $search ) {
     $posts = $wpdb->get_results(
       $wpdb->prepare(
-        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s ORDER BY post_date DESC LIMIT %d, %d",
+        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s" . $author_where . " ORDER BY post_date DESC LIMIT %d, %d",
         $post_type,
         '%'.$wpdb->esc_like( $search ).'%',
         ($page_no - 1) * get_option( 'fv_items_per_page' ),
@@ -638,7 +658,7 @@ function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
   } else {
     $posts = $wpdb->get_results(
       $wpdb->prepare(
-        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') ORDER BY post_date DESC LIMIT %d, %d",
+        "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit')" . $author_where . " ORDER BY post_date DESC LIMIT %d, %d",
         $post_type,
         ($page_no - 1) * get_option( 'fv_items_per_page' ),
         get_option( 'fv_items_per_page' )
@@ -649,7 +669,7 @@ function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
   if( $search ) {
     $count = $wpdb->get_var(
       $wpdb->prepare(
-        "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s ORDER BY post_date DESC",
+        "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') AND post_title LIKE %s" . $author_where . " ORDER BY post_date DESC",
         $post_type,
         '%'.$wpdb->esc_like( $search ).'%'
       )
@@ -658,7 +678,7 @@ function fv_descriptions_get_data( $post_type, $page_no, $search = false ) {
   } else {
     $count = $wpdb->get_var(
       $wpdb->prepare(
-        "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit') ORDER BY post_date DESC",
+        "SELECT count(ID) FROM {$wpdb->posts} WHERE post_type = %s AND post_status NOT IN ('draft','trash','auto-draft','inherit')" . $author_where . " ORDER BY post_date DESC",
         $post_type
       )
     );
@@ -733,6 +753,9 @@ function fv_descriptions_pagination( $page_no, $element_count, $search_value ) {
       <input type="hidden" name="description_tags_type" value="<?php echo esc_attr( fv_descriptions_get_tag_type() ); ?>" />
       <input type="hidden" name="description_field_type" value="<?php echo esc_attr( fv_description_get_field_type() ); ?>" />
       <input type="hidden" name="page_no" value="<?php echo intval( fv_descriptions_get_last_page_no($element_count) ); ?>" />
+      <?php if ( ! empty( $_GET['author'] ) ) : ?>
+        <input type="hidden" name="author" value="<?php echo intval( $_GET['author'] ); ?>" />
+      <?php endif; ?>
     </form>
     <script>
       document.fv_descriptions_hidden_form.submit();
@@ -756,6 +779,12 @@ function fv_descriptions_pagination( $page_no, $element_count, $search_value ) {
 
     $prev_page = add_query_arg( 'page_no', $page_no - 1, $base_url );
     $next_page = add_query_arg( 'page_no', $page_no + 1, $base_url );
+
+    if ( ! empty( $_GET['author'] ) ) {
+      $prev_page = add_query_arg( 'author', $_GET['author'], $prev_page );
+      $next_page = add_query_arg( 'author', $_GET['author'], $next_page );
+    }
+
     ?>
     <form class="alignright" method="GET">
       <input type="hidden" name="page" value="fv_descriptions" />
@@ -765,6 +794,10 @@ function fv_descriptions_pagination( $page_no, $element_count, $search_value ) {
 
       <?php if ( ! empty( $search_value ) ) : ?>
         <input type="hidden" name="search_value" value="<?php echo esc_attr( $search_value ); ?>" />
+      <?php endif; ?>
+
+      <?php if ( ! empty( $_GET['author'] ) ) : ?>
+        <input type="hidden" name="author" value="<?php echo intval( $_GET['author'] ); ?>" />
       <?php endif; ?>
 
       <?php
