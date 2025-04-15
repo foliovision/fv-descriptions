@@ -249,7 +249,7 @@ function manage_fv_descriptions(){
   <?php else : ?>
     table tr td { width: 20% }
   <?php endif; ?>
-  table tr td input { width: 100% }
+  table tr td input { width: calc( 100% - 72px ) }
   table tr td:nth-of-type(1) { width: 5em }
   <?php if( $description_field_type == 'title' ) : ?>
     table tr td:nth-of-type(2) { width: 60% }
@@ -258,6 +258,19 @@ function manage_fv_descriptions(){
   <?php elseif( $description_field_type == 'keywords' ) : ?>
     table tr td:nth-of-type(4) { width: 60% }
   <?php endif; ?>
+  .char-counter {
+    margin-top: 5px;
+    font-size: 12px;
+  }
+  .char-count {
+    background-color: red;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    width: 2em;
+    display: inline-block;
+    text-align: center;
+  }  
   </style>
   <?php
 ?>
@@ -546,8 +559,48 @@ function manage_fv_descriptions(){
     echo '<p>unknown description tags type!</p>';
     
   }
+  
+  // TODO: Load these character counts from FV Simpler SEO
 ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize all description inputs
+      const descriptionInputs = document.querySelectorAll('.description-input');
 
+      descriptionInputs.forEach(function(input) {
+        // Get the counter span next to this input
+        const counterSpan = input.nextElementSibling.querySelector('.char-count');
+
+        // Set initial count
+        updateCharCount(input, counterSpan);
+
+        // Add event listener for input changes
+        input.addEventListener('input', function() {
+          updateCharCount(input, counterSpan);
+        });
+      });
+
+      function updateCharCount(input, counterSpan) {
+        const count = input.value.length;
+        counterSpan.textContent = count;
+
+        // Update styling based on character count
+        if (count >= 110 && count <= 145) {
+          counterSpan.style.backgroundColor = 'green';
+          counterSpan.style.color = 'white';
+        } else if (count >= 70 && count < 110) {
+          counterSpan.style.backgroundColor = 'yellow';
+          counterSpan.style.color = 'black';
+        } else if (count > 145) {
+          counterSpan.style.backgroundColor = 'red';
+          counterSpan.style.color = 'white';
+        } else {
+          counterSpan.style.backgroundColor = 'red';
+          counterSpan.style.color = 'white';
+        }
+      }
+    });
+    </script>
   </fieldset>
 
   </div>
@@ -584,13 +637,23 @@ function manage_fv_descriptions_recursive($type, $parent, $level, $elements, $hi
     <?php endif; ?>
     <?php if($fieldname=='excerpt') : ?>
     <?php if(fv_description_get_field_type() == 'description' or fv_description_get_field_type() == 'all3atonce' or fv_description_get_field_type() == 'bothatonce') : ?>
-    <td><input type="text" name="tagdescription_<?php echo intval( $element->ID ); ?>" id="tagdescription_<?php echo intval( $element->ID ); ?>" value="<?php echo esc_attr( $element_value ); ?>" /></td>
+    <td>
+      <input type="text" name="tagdescription_<?php echo intval( $element->ID ); ?>" id="tagdescription_<?php echo intval( $element->ID ); ?>" value="<?php echo esc_attr( $element_value ); ?>" class="description-input" />
+      <span class="char-counter"><span class="char-count"><?php echo strlen($element_value); ?></span> / 145</span>
+    </td>
     <?php else : ?>
     <td><?php echo esc_html ($element_value); ?></td>
     <?php endif; ?>
     <?php else : ?>
     <?php if(fv_description_get_field_type() == 'description' or fv_description_get_field_type() == 'all3atonce' or fv_description_get_field_type() == 'bothatonce') : ?>
-    <td><input type="text" title="<?php echo esc_attr( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?>" name="tagdescription_<?php echo intval( $element->ID ); ?>" id="tagdescription_<?php echo intval( $element->ID ); ?>" value="<?php echo esc_attr( trim( stripcslashes( get_post_meta( $element->ID, $fieldname, true ) ) ) ); ?>" /></td>
+    <td>
+      <?php 
+      $meta_value = trim(stripcslashes(get_post_meta($element->ID, $fieldname, true)));
+      $meta_value_length = strlen($meta_value);
+      ?>
+      <input type="text" title="<?php echo esc_attr( $meta_value ); ?>" name="tagdescription_<?php echo intval( $element->ID ); ?>" id="tagdescription_<?php echo intval( $element->ID ); ?>" value="<?php echo esc_attr( $meta_value ); ?>" class="description-input" />
+      <span class="char-counter"><span class="char-count"><?php echo $meta_value_length; ?></span> / 145</span>
+    </td>
     <?php else : ?>
     <td><?php echo esc_html( trim(stripcslashes(get_post_meta($element->ID, $fieldname, true))) ); ?></td>                  
     <?php endif; ?>
